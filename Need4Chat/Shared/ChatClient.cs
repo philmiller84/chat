@@ -147,7 +147,7 @@ namespace Need4Chat.Shared
             }
         }
 
-        
+
         public async ValueTask DisposeAsync()
         {
             Console.WriteLine("ChatClient: Disposing");

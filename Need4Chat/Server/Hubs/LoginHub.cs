@@ -1,6 +1,6 @@
-﻿using Need4Chat.Server.Models;
+﻿using Microsoft.AspNetCore.SignalR;
+using Need4Chat.Server.Models;
 using Need4Chat.Shared;
-using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

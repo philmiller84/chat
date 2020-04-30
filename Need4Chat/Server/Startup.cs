@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Blazorise;
+using Blazorise.Bootstrap;
+using Blazorise.Icons.FontAwesome;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
@@ -6,9 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.IO;
 using System.Linq;
-using Blazorise;
-using Blazorise.Bootstrap;
-using Blazorise.Icons.FontAwesome;
 
 namespace Need4Chat.Server
 {
@@ -25,8 +25,8 @@ namespace Need4Chat.Server
             //string dbConn = Configuration.GetSection("ConnectionString").GetSection("Burbank").Value;
             //services.AddDbContext<database1Context>(opt => opt.UseSqlServer(dbConn), ServiceLifetime.Transient);
 
-            services.AddBlazorise( options => { options.ChangeTextOnKeyPress = true; } ) 
-                .AddBootstrapProviders() 
+            services.AddBlazorise(options => { options.ChangeTextOnKeyPress = true; })
+                .AddBootstrapProviders()
                 .AddFontAwesomeIcons();
 
             services.AddMvc().AddNewtonsoftJson();

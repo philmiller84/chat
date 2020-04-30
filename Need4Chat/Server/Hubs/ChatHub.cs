@@ -1,5 +1,5 @@
-﻿using Need4Chat.Shared;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
+using Need4Chat.Shared;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -72,7 +72,7 @@ namespace Need4Chat.Server.Hubs
         {
             Console.WriteLine("Connected");
 
-            foreach (var m in dbMiddleware.GetMessages())
+            foreach (ChatMessage m in dbMiddleware.GetMessages())
             {
                 Clients.Caller.SendAsync("ReceiveMessage", m.Username, m.Body);
             }

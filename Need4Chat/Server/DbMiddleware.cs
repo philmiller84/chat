@@ -1,6 +1,6 @@
-﻿using Need4Chat.Server.Models;
+﻿using Microsoft.EntityFrameworkCore.Internal;
+using Need4Chat.Server.Models;
 using Need4Chat.Shared;
-using Microsoft.EntityFrameworkCore.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,13 +17,12 @@ namespace Need4Chat.Server
             //InitializeData();
         }
 
-
-        string GetEncodedHash(string password, string salt)
-		{
-		    MD5 md5 = new MD5CryptoServiceProvider();
-			byte [] digest = md5.ComputeHash(Encoding.UTF8.GetBytes(password + salt));
-			string base64digest = Convert.ToBase64String(digest, 0, digest.Length);
-			return base64digest.Substring(0, base64digest.Length-2);
+        private string GetEncodedHash(string password, string salt)
+        {
+            MD5 md5 = new MD5CryptoServiceProvider();
+            byte[] digest = md5.ComputeHash(Encoding.UTF8.GetBytes(password + salt));
+            string base64digest = Convert.ToBase64String(digest, 0, digest.Length);
+            return base64digest.Substring(0, base64digest.Length - 2);
         }
 
         public bool TryLoginAttempt(User t)
@@ -44,7 +43,7 @@ namespace Need4Chat.Server
             IQueryable<string> q = from u in db.User where u.Name == t.Name select u.Password;
 
             string salt = "WHAT IS THE NAME OF THE ";
-            string encodedPassword = GetEncodedHash(t.Password,  salt);
+            string encodedPassword = GetEncodedHash(t.Password, salt);
 
             if (q.Count() > 0)
             {
@@ -77,14 +76,14 @@ namespace Need4Chat.Server
             }
 
             database1Context db = new database1Context();
-            var q = from r in db.User where r.Name == msg.Username select r.Id;
+            IQueryable<Guid> q = from r in db.User where r.Name == msg.Username select r.Id;
 
             if (q.Count() < 1)
             {
                 return;
             }
 
-            var userID = q.FirstOrDefault();
+            Guid userID = q.FirstOrDefault();
 
             Message t = new Message() { User = userID, Text = msg.Body };
             db.Message.Add(t);
@@ -95,10 +94,10 @@ namespace Need4Chat.Server
         public IEnumerable<ChatMessage> GetMessages()
         {
             database1Context db = new database1Context();
-            var q = from r in db.Message
-                    join u in db.User on r.User equals u.Id
-                    orderby r.Timestamp ascending
-                    select new ChatMessage { Username = u.Name, Body = r.Text };
+            IQueryable<ChatMessage> q = from r in db.Message
+                                        join u in db.User on r.User equals u.Id
+                                        orderby r.Timestamp ascending
+                                        select new ChatMessage { Username = u.Name, Body = r.Text };
             return q.ToList<ChatMessage>();
         }
 
