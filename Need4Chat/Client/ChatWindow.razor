@@ -1,0 +1,175 @@
+﻿@using Need4Chat.Shared
+@inject NavigationManager navigationManager
+
+<style>
+	h3 {
+		color: #ffd800
+	}
+
+	.chat-window {
+		overflow: auto;
+		width: 110vh;
+		max-height: 80vh;
+		display: flex;
+		flex-direction: column-reverse;
+	}
+
+	.form-footer {
+		min-height: 10vh;
+		position: absolute;
+		bottom: 0;
+		width: 110vh;
+	}
+
+	.query-input {
+		width: 110vh;
+	}
+
+	body {
+		position: fixed;
+		height: 80vh;
+		overflow-y: hidden;
+	}
+
+	html {
+		height: 100vh;
+	}
+</style>
+
+<h3>ChatWindow</h3>
+<p>@message</p>
+
+<div class="chat-window">
+	@for (int i = messages.Count - 1; i >= 0; i--)
+	{
+	<div>
+		@if(HasLink(messages[i].Body))
+			{
+		<div class="msg"> @(messages[i].Username): <a href=@messages[i].Body> @messages[i].Body</a></div>
+			}
+			else
+			{
+	<div class="msg" style="font-family: monospace;"> @(messages[i].Username): @((MarkupString)messages[i].Body.Replace(" ", "&nbsp;"))</div>
+			}
+	</div>
+	}
+</div>
+
+<form class="form-footer" @onsubmit="@SendAsync">
+	<input class="query-input" placeholder="Type something and press enter" @bind="@newChatMessage.Body">
+</form>
+
+@code {
+
+	// name of the user who will be chatting
+	[Parameter]
+	public string Username { get; set; }
+
+	ChatClient client = null;
+
+	// on-screen message
+	string message = String.Empty;
+
+	// new message input
+	ChatMessage newChatMessage = null;
+
+	// list of messages in chat
+	List<ChatMessage> messages = new List<ChatMessage>();
+
+
+	/// <summary>
+	/// Start chat client
+	/// </summary>
+	async Task Chat()
+	{
+		// check username is valid
+		//if (string.IsNullOrWhiteSpace(username))
+		//{
+		//	message = "Please enter a name";
+		//	return;
+		//};
+
+		try
+		{
+			// remove old messages if any
+			messages.Clear();
+
+			// Create the chat client
+			string baseUrl = navigationManager.BaseUri;
+
+			newChatMessage = new ChatMessage() { Username = Username, Mine = true };
+
+			client = new ChatClient(Username, baseUrl);
+
+			// add an event handler for incoming messages
+			client.MessageReceived += MessageReceived;
+
+			// start the client
+			Console.WriteLine("Index: chat starting...");
+
+			await client.StartAsync();
+			Console.WriteLine("Index: chat started?");
+		}
+		catch (Exception e)
+		{
+			message = $"ERROR: Failed to start chat client: {e.Message}";
+			Console.WriteLine(e.Message);
+			Console.WriteLine(e.StackTrace);
+		}
+	}
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Chat();
+	}
+
+	public bool HasLink(string message)
+	{
+		return message.Contains("http");
+	}
+
+	/// <summary>
+	/// Inbound message
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	void MessageReceived(object sender, MessageReceivedEventArgs e)
+	{
+		Console.WriteLine($"Blazor: receive {e.Username}: {e.Message}");
+		bool isMine = false;
+		if (!string.IsNullOrWhiteSpace(e.Username))
+		{
+			isMine = string.Equals(e.Username, Username, StringComparison.CurrentCultureIgnoreCase);
+		}
+
+		var newMsg = new ChatMessage() { Username = e.Username, Body = e.Message, Mine = isMine };
+		
+
+		messages.Add(newMsg);
+
+
+		// Inform blazor the UI needs updating
+		StateHasChanged();
+	}
+
+	async Task DisconnectAsync()
+	{
+		await client.StopAsync();
+		client = null;
+		message = "chat ended";
+	}
+
+	async Task SendAsync()
+	{
+		if (!string.IsNullOrWhiteSpace(newChatMessage.Body))
+		{
+			// send message to hub
+			await client.SendAsync(newChatMessage);
+
+			// clear input box
+			newChatMessage.Body = string.Empty;
+		}
+	}
+
+}

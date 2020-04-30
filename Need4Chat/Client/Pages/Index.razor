@@ -1,0 +1,23 @@
+﻿@page "/"
+
+@if (Chatting)
+{
+    <ChatWindow Username="@Username"/>
+}
+else
+{
+    <LoginWindow OnAuthenticationChange="OpenChat" />
+}
+
+
+@code  {
+    public bool Chatting = false;
+    public string Username = "index_tester";
+
+    private void OpenChat(string username)
+    {
+        Chatting = true;
+        Username = username;
+        StateHasChanged();
+    }
+}

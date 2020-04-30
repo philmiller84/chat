@@ -1,0 +1,147 @@
+﻿@using Need4Chat.Shared
+@inject NavigationManager navigationManager
+
+
+<h3>LoginWindow</h3>
+
+<div>
+    <p>Registered users:</p>
+
+    @for (int i = users.Count - 1; i >= 0; i--)
+    {
+        <div>
+            <div class="user">@users[i].Username</div>
+        </div>
+    }
+</div>
+
+
+<div>
+    <p>Enter your login information</p>
+
+    <input id="user-name" @bind="@userLoginInfo.Username" />
+    <input id="password" type="password" @bind="userLoginInfo.Password" />
+    <button @onclick="@TryLogin">Login</button>
+
+    <p>@message</p>
+
+</div>
+
+
+@code
+{
+
+	List<LoginInfo> users = new List<LoginInfo>() ;
+
+	LoginInfo userLoginInfo = new LoginInfo();
+
+
+	LoginClient client = null;
+
+
+	string message = string.Empty;
+
+	[Parameter] public Action<string> OnAuthenticationChange { get; set; }
+
+	private void SetChatting()
+	{
+		OnAuthenticationChange?.Invoke(userLoginInfo.Username);
+	}
+
+	async Task TryLogin()
+	{
+
+		if (string.IsNullOrWhiteSpace(userLoginInfo.Username))
+		{
+			message = "Please enter a name";
+			return;
+		}
+		else
+		{
+			message = "You attempted to login as '" + userLoginInfo.Username + "'";
+		}
+
+		// send message to hub
+		await client.SendAsync(userLoginInfo);
+	}
+
+	bool IsAuthenticated(string message)
+	{
+		return message == "User logged in";
+	}
+
+	/// <summary>
+	/// Inbound message
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	void LoginMessageReceived(object sender, LoginReceivedEventArgs e)
+	{
+		Console.WriteLine($"Blazor: receive {e.Username}: {e.Message}");
+		message = e.Message;
+
+
+		// Inform blazor the UI needs updating
+		StateHasChanged();
+
+		System.Threading.Thread.Sleep(1500);
+
+		if (IsAuthenticated(e.Message))
+		{
+			SetChatting();
+			StateHasChanged();
+		}
+	}
+
+
+	/// <summary>
+	/// Inbound message
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	void MessageReceived(object sender, LoginReceivedEventArgs e)
+	{
+		Console.WriteLine($"Blazor: receive {e.Username}: {e.Message}");
+
+		var newMsg = new LoginInfo { Username = e.Username };
+		if (users.Find(x => { return x.Username == newMsg.Username; }) == null)
+			users.Add(newMsg);
+
+		// Inform blazor the UI needs updating
+		StateHasChanged();
+	}
+
+
+	async Task Login()
+	{
+		try
+		{
+			// remove old messages if any
+			users.Clear();
+
+			// Create the chat client
+			string baseUrl = navigationManager.BaseUri;
+
+			client = new LoginClient("guest", baseUrl);
+
+			// add an event handler for incoming messages
+			client.LoginMessageReceived += LoginMessageReceived;
+			client.MessageReceived += MessageReceived;
+			// start the client
+			Console.WriteLine("Index: login starting...");
+			await client.StartAsync();
+			Console.WriteLine("Index: login started?");
+		}
+		catch (Exception e)
+		{
+			message = $"ERROR: Failed to start login client: {e.Message}";
+			Console.WriteLine(e.Message);
+			Console.WriteLine(e.StackTrace);
+		}
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Login();
+	}
+}
