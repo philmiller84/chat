@@ -5,6 +5,7 @@
         overflow: auto;
         display: flex;
         flex-direction: column-reverse;
+        background-color:lightcyan;
     }
 
     .form-footer {
@@ -16,15 +17,9 @@
     }
 
     .chat-message {
-        animation: example 4s;
         margin-right: 2vh;
         line-height: 0.25;
         font-family: monospace;
-    }
-
-    @@keyframes example {
-    0% {color: yellow;}
-    100% {color: white;}
     }
 
     </style>
@@ -32,16 +27,7 @@
 <div class="row chat-window">
     @for (int i = messages.Count - 1; i >= 0; i--)
     {
-        <div class="chat-message">
-            @if (HasLink(messages[i].Body))
-            {
-                <p> @(messages[i].Username): <a href=@messages[i].Body> @messages[i].Body</a></p>
-            }
-            else
-            {
-                <p> @(messages[i].Username): @((MarkupString)messages[i].Body.Replace(" ", "&nbsp;"))</p>
-            }
-        </div>
+        <ChatMessageComponent chatMessage="@messages[i]"/>
     }
 </div>
 <div class="row h-25 align-items-end">
@@ -91,7 +77,7 @@
             // Create the chat client
             string baseUrl = navigationManager.BaseUri;
 
-            newChatMessage = new ChatMessage() { Username = Username, Mine = true };
+            newChatMessage = new ChatMessage() { Username = Username, Mine = true, DateAndTime = DateTime.Now };
 
             client = new ChatClient(Username, baseUrl);
 
@@ -137,7 +123,7 @@
             isMine = string.Equals(e.Username, Username, StringComparison.CurrentCultureIgnoreCase);
         }
 
-        var newMsg = new ChatMessage() { Username = e.Username, Body = e.Message, Mine = isMine };
+        var newMsg = new ChatMessage() { Username = e.Username, Body = e.Message, Mine = isMine, DateAndTime = e.Timestamp };
 
 
         messages.Add(newMsg);

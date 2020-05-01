@@ -1,4 +1,4 @@
-﻿
+﻿using System;
 
 namespace Need4Chat.Shared
 {
@@ -8,6 +8,7 @@ namespace Need4Chat.Shared
         public string Body { get; set; } = "";
         public bool Mine { get; set; } = false;
         public string ID { get; set; } = string.Empty;
+        public DateTime DateAndTime { get; set; } = DateTime.Now;
     }
 
 

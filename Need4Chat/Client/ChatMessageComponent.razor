@@ -1,4 +1,8 @@
-﻿<div class="chat-message">
+﻿@using Need4Chat.Shared 
+
+<Tooltip Text="@(Formats.StandardDate(chatMessage.DateAndTime.ToLocalTime()))" >
+
+    <div class="chat-message">
         @if (HasLink(chatMessage.Body))
         {
             <p> @chatMessage.Username: <a href=@chatMessage.Body> @chatMessage.Body</a></p>
@@ -8,6 +12,7 @@
             <p> @chatMessage.Username: @((MarkupString)chatMessage.Body.Replace(" ", "&nbsp;"))</p>
         }
     </div>
+</Tooltip>
 
 @code {
     [Parameter] public ChatMessage chatMessage { get; set; }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
 namespace Need4Chat.Shared
@@ -175,12 +176,14 @@ namespace Need4Chat.Shared
         {
             Username = chatMessage.Username;
             Message = chatMessage.Body;
+            Timestamp = chatMessage.DateAndTime;
             ID = chatMessage.ID;
         }
 
         public string ID { get; set; }
         public string Username { get; set; }
         public string Message { get; set; }
+        public DateTime Timestamp { get; set; }
 
     }
 

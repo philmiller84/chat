@@ -3,6 +3,7 @@ using Need4Chat.Server.Models;
 using Need4Chat.Shared;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -97,7 +98,7 @@ namespace Need4Chat.Server
             IQueryable<ChatMessage> q = from r in db.Message
                                         join u in db.User on r.User equals u.Id
                                         orderby r.Timestamp ascending
-                                        select new ChatMessage { Username = u.Name, Body = r.Text };
+                                        select new ChatMessage { Username = u.Name, Body = r.Text, DateAndTime = r.Timestamp };
             return q.ToList<ChatMessage>();
         }
 
