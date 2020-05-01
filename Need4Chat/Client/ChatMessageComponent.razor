@@ -1,6 +1,15 @@
-﻿@using Need4Chat.Shared 
+﻿@using Need4Chat.Shared
 
-<Tooltip Text="@(Formats.StandardDate(chatMessage.DateAndTime.ToLocalTime()))" >
+<style>
+    .chat-message {
+        margin-right: 2vh;
+        line-height: 0.25;
+        font-family: monospace;
+    }
+
+</style>
+
+<Tooltip IsFade="true" Text="@(Formats.StandardDate(chatMessage.DateAndTime.ToLocalTime()))">
 
     <div class="chat-message">
         @if (HasLink(chatMessage.Body))

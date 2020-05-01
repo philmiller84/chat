@@ -1,6 +1,6 @@
 ﻿@inject NavigationManager navigationManager
 
-    <style>
+<style>
     .chat-window {
         overflow: auto;
         display: flex;
@@ -16,13 +16,7 @@
         width:100%
     }
 
-    .chat-message {
-        margin-right: 2vh;
-        line-height: 0.25;
-        font-family: monospace;
-    }
-
-    </style>
+</style>
 
 <div class="row chat-window">
     @for (int i = messages.Count - 1; i >= 0; i--)
