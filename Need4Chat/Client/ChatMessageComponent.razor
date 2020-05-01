@@ -1,0 +1,21 @@
+﻿<div class="chat-message">
+        @if (HasLink(chatMessage.Body))
+        {
+            <p> @chatMessage.Username: <a href=@chatMessage.Body> @chatMessage.Body</a></p>
+        }
+        else
+        {
+            <p> @chatMessage.Username: @((MarkupString)chatMessage.Body.Replace(" ", "&nbsp;"))</p>
+        }
+    </div>
+
+@code {
+    [Parameter] public ChatMessage chatMessage { get; set; }
+
+
+    public bool HasLink(string message)
+    {
+        return message.Contains("http");
+    }
+
+}
