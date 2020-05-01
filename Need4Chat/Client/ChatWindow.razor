@@ -1,4 +1,5 @@
-﻿@inject NavigationManager navigationManager
+﻿@using Need4Chat.Shared
+@inject NavigationManager navigationManager
 
 <style>
     .chat-window {
@@ -13,7 +14,8 @@
         width:100%
     }
     .query-input {
-        width:100%
+        width:100%;
+/*        display:none;*/
     }
 
 </style>
@@ -26,7 +28,7 @@
 </div>
 <div class="row h-25 align-items-end">
     <form class="form-footer" @onsubmit="@SendAsync">
-        <input class="query-input" placeholder="Type something and press enter" @bind="@newChatMessage.Body">
+        <input id="query-input" class="query-input" placeholder="Type something and press enter" @bind="@newChatMessage.Body">
     </form>
 </div>
 
@@ -77,6 +79,7 @@
 
             // add an event handler for incoming messages
             client.MessageReceived += MessageReceived;
+            client.BulkMessagesReceived += BulkMessagesReceived;
 
             // start the client
             Console.WriteLine("Index: chat starting...");
@@ -103,14 +106,11 @@
         return message.Contains("http");
     }
 
-    /// <summary>
-    /// Inbound message
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    void MessageReceived(object sender, MessageReceivedEventArgs e)
+
+
+    void ProcessMessageEvent(MessageReceivedEventArgs e)
     {
-        Console.WriteLine($"Blazor: receive {e.Username}: {e.Message}");
+        // Console.WriteLine($"Blazor: receive {e.Username}: {e.Message}");
         bool isMine = false;
         if (!string.IsNullOrWhiteSpace(e.Username))
         {
@@ -122,6 +122,30 @@
 
         messages.Add(newMsg);
 
+    }
+    /// <summary>
+    /// Inbound message
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    void BulkMessagesReceived(object sender, BulkMessagesReceivedEventArgs e)
+    {
+        foreach(var m in e.messageEventArgs)
+        {
+            ProcessMessageEvent(m);
+        }
+
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Inbound message
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    void MessageReceived(object sender, MessageReceivedEventArgs e)
+    {
+        ProcessMessageEvent(e);
 
         // Inform blazor the UI needs updating
         StateHasChanged();

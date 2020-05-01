@@ -72,10 +72,7 @@ namespace Need4Chat.Server.Hubs
         {
             Console.WriteLine("Connected");
 
-            foreach (ChatMessage m in dbMiddleware.GetMessages())
-            {
-                Clients.Caller.SendAsync("ReceiveChatMessage", m);
-            }
+            Clients.Caller.SendAsync("BulkReceiveChatMessages", dbMiddleware.GetMessages());
 
             return base.OnConnectedAsync();
         }

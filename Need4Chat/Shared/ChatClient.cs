@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
@@ -68,14 +69,9 @@ namespace Need4Chat.Shared
                 Console.WriteLine("ChatClient: calling Start()");
 
                 // add handler for receiving messages
-                _hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
-                 {
-                     HandleReceiveMessage(new ChatMessage() { Username = user, Body = message });
-                 });
-                _hubConnection.On<ChatMessage>("ReceiveChatMessage", (chatMessage) =>
-                 {
-                     HandleReceiveMessage(chatMessage);
-                 });
+                _hubConnection.On<string, string>("ReceiveMessage", (user, message) => { HandleReceiveMessage(new ChatMessage() { Username = user, Body = message }); });
+                _hubConnection.On< IEnumerable<ChatMessage>>("BulkReceiveChatMessages", (chatMessages) => { BulkHandleReceiveMessages(chatMessages); });
+                _hubConnection.On<ChatMessage>("ReceiveChatMessage", (chatMessage) => { HandleReceiveMessage(chatMessage); });
 
                 // start the connection
                 await _hubConnection.StartAsync();
@@ -86,6 +82,11 @@ namespace Need4Chat.Shared
                 // register user on hub to let other clients know they've joined
                 await _hubConnection.SendAsync("Register", _username);
             }
+        }
+
+        private void BulkHandleReceiveMessages(IEnumerable<ChatMessage> chatMessages)
+        {
+            BulkMessagesReceived?.Invoke(this, new BulkMessagesReceivedEventArgs(chatMessages));
         }
 
         /// <summary>
@@ -106,6 +107,7 @@ namespace Need4Chat.Shared
         /// Instance classes should subscribe to this event
         /// </remarks>
         public event MessageReceivedEventHandler MessageReceived;
+        public event BulkMessagesReceivedEventHandler BulkMessagesReceived;
 
         /// <summary>
         /// Send a message to the hub
@@ -166,10 +168,26 @@ namespace Need4Chat.Shared
     /// <param name="sender">the SignalRclient instance</param>
     /// <param name="e">Event args</param>
     public delegate void MessageReceivedEventHandler(object sender, MessageReceivedEventArgs e);
+    public delegate void BulkMessagesReceivedEventHandler(object sender, BulkMessagesReceivedEventArgs e);
 
     /// <summary>
     /// Message received argument class
     /// </summary>
+    public class BulkMessagesReceivedEventArgs : EventArgs
+    {
+        public List<MessageReceivedEventArgs> messageEventArgs = null;
+
+        public BulkMessagesReceivedEventArgs(IEnumerable<ChatMessage> chatMessages)
+        {
+            messageEventArgs = new List<MessageReceivedEventArgs>();
+
+            foreach(var c in chatMessages)
+            {
+                messageEventArgs.Add(new MessageReceivedEventArgs(c));
+            }
+        }
+    }
+
     public class MessageReceivedEventArgs : EventArgs
     {
         public MessageReceivedEventArgs(ChatMessage chatMessage)

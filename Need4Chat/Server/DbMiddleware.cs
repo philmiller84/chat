@@ -54,7 +54,7 @@ namespace Need4Chat.Server
             {
                 t.Password = encodedPassword;
                 db.User.Add(t);
-                Console.WriteLine("Sending to DB: {0}", t.ToString());
+                // Console.WriteLine("Sending to DB: {0}", t.ToString());
                 db.SaveChanges();
                 return true;
             }
@@ -88,7 +88,7 @@ namespace Need4Chat.Server
 
             Message t = new Message() { User = userID, Text = msg.Body };
             db.Message.Add(t);
-            Console.WriteLine("Sending to DB: {0}", t.ToString());
+            //Console.WriteLine("Sending to DB: {0}", t.ToString());
             db.SaveChanges();
         }
 
