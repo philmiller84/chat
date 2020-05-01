@@ -69,7 +69,11 @@ namespace Need4Chat.Shared
                 // add handler for receiving messages
                 _hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
                  {
-                     HandleReceiveMessage(user, message);
+                     HandleReceiveMessage(new ChatMessage() { Username = user, Body = message });
+                 });
+                _hubConnection.On<ChatMessage>("ReceiveChatMessage", (chatMessage) =>
+                 {
+                     HandleReceiveMessage(chatMessage);
                  });
 
                 // start the connection
@@ -88,10 +92,10 @@ namespace Need4Chat.Shared
         /// </summary>
         /// <param name="method">event name</param>
         /// <param name="message">message content</param>
-        private void HandleReceiveMessage(string username, string message)
+        private void HandleReceiveMessage(ChatMessage chatMessage)
         {
             // raise an event to subscribers
-            MessageReceived?.Invoke(this, new MessageReceivedEventArgs(username, message));
+            MessageReceived?.Invoke(this, new MessageReceivedEventArgs(chatMessage));
         }
 
         /// <summary>
@@ -167,20 +171,15 @@ namespace Need4Chat.Shared
     /// </summary>
     public class MessageReceivedEventArgs : EventArgs
     {
-        public MessageReceivedEventArgs(string username, string message)
+        public MessageReceivedEventArgs(ChatMessage chatMessage)
         {
-            Username = username;
-            Message = message;
+            Username = chatMessage.Username;
+            Message = chatMessage.Body;
+            ID = chatMessage.ID;
         }
 
-        /// <summary>
-        /// Name of the message/event
-        /// </summary>
+        public string ID { get; set; }
         public string Username { get; set; }
-
-        /// <summary>
-        /// Message data items
-        /// </summary>
         public string Message { get; set; }
 
     }

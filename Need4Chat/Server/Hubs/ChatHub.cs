@@ -35,7 +35,7 @@ namespace Need4Chat.Server.Hubs
             {
                 //var message = JsonSerializer.Deserialize<ChatMessage>(jsonString);
                 dbMiddleware.AddMessage(message);
-                await Clients.All.SendAsync("ReceiveMessage", message.Username, message.Body);
+                await Clients.All.SendAsync("ReceiveChatMessage", message);
             }
             catch (Exception e)
             {
@@ -74,7 +74,7 @@ namespace Need4Chat.Server.Hubs
 
             foreach (ChatMessage m in dbMiddleware.GetMessages())
             {
-                Clients.Caller.SendAsync("ReceiveMessage", m.Username, m.Body);
+                Clients.Caller.SendAsync("ReceiveChatMessage", m);
             }
 
             return base.OnConnectedAsync();

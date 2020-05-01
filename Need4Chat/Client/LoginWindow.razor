@@ -1,50 +1,48 @@
 ﻿@inject NavigationManager navigationManager
 
 
-<h3>LoginWindow</h3>
-
-<div>
-    <p>Enter your login information</p>
-
-
+<div class="row">
+    <h3>Login</h3>
+</div>
+<div class="row">
     <Fields>
-        <Field ColumnSize="ColumnSize.IsThird"> <FieldLabel>Username</FieldLabel> </Field>
-        <Field ColumnSize="ColumnSize.IsThird"> <FieldLabel>Password</FieldLabel> </Field>
-    </Fields>
-    <Fields>
-        <Field ColumnSize="ColumnSize.IsThird"> <TextEdit @bind-Text="@userLoginInfo.Username" /> </Field>
-        <Field ColumnSize="ColumnSize.IsThird"> <TextEdit Role="TextRole.Password" @bind-Text="@userLoginInfo.Password" /> </Field>
+        <Field ColumnSize="ColumnSize.IsThird"> <TextEdit Placeholder="Enter username" @bind-Text="@userLoginInfo.Username" /> </Field>
+        <Field ColumnSize="ColumnSize.IsThird"> <TextEdit Placeholder="Enter password" Role="TextRole.Password" @bind-Text="@userLoginInfo.Password" /> </Field>
         <Field ColumnSize="ColumnSize.IsThird"> <Button @onclick="@TryLogin" Color="Color.Primary">Login</Button> </Field>
     </Fields>
-
-
 </div>
 
-<Accordion>
-    <Collapse Visible="@collapse1Visible">
-        <CollapseHeader>
-            <Heading Size="HeadingSize.Is5">
-                <Button Clicked="@(()=>collapse1Visible = !collapse1Visible)">Registered users:</Button>
-            </Heading>
-        </CollapseHeader>
-        <CollapseBody>
-            <div class="custom-control custom-radio">
-                @for (int i = users.Count - 1; i >= 0; i--)
+<Divider Type="DividerType.Dotted" />
+
+<div class="row flex-grow-1">
+    <Accordion>
+        <Collapse Visible="@collapse1Visible">
+            <CollapseHeader>
+                <Heading Size="HeadingSize.Is5">
+                    <Button Clicked="@(()=>collapse1Visible = !collapse1Visible)">Registered users:</Button>
+                </Heading>
+            </CollapseHeader>
+            <CollapseBody>
+                <div class="custom-control custom-radio">
+                    @for (int i = users.Count - 1; i >= 0; i--)
 				{
-                <div>
-                    <input type="radio" class="custom-control-input" name="question1" id="@users[i].Username" value="@users[i].Username" @onchange="SelectionChanged" checked=@(selectedAnswer.Equals(@users[i].Username,StringComparison.OrdinalIgnoreCase)) />
-                    <label class="custom-control-label" for="@users[i].Username">@users[i].Username</label>
+                    <div>
+                        <input type="radio" class="custom-control-input" name="question1" id="@users[i].Username" value="@users[i].Username" @onchange="SelectionChanged" checked=@(selectedAnswer.Equals(@users[i].Username,StringComparison.OrdinalIgnoreCase)) />
+                        <label class="custom-control-label" for="@users[i].Username">@users[i].Username</label>
+                    </div>
+				}
                 </div>
-		        }
-            </div>
-        </CollapseBody>
-    </Collapse>
-</Accordion>
-   
-<div>@message</div>
+            </CollapseBody>
+        </Collapse>
+    </Accordion>
+</div>
+
+<div class="row h-25 align-items-end">
+    <kbd> >:] </kbd> @message
+</div>
 
 @code{
-    
+
 	string selectedAnswer = String.Empty;
 
 	void SelectionChanged(ChangeEventArgs args)
@@ -52,7 +50,7 @@
          userLoginInfo.Username= args.Value.ToString();
     }
 
-    bool collapse1Visible = false;
+    bool collapse1Visible = true;
 
 	List<LoginInfo> users = new List<LoginInfo>() ;
 
