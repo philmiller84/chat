@@ -4,30 +4,55 @@
 <h3>LoginWindow</h3>
 
 <div>
-    <p>Registered users:</p>
-
-    @for (int i = users.Count - 1; i >= 0; i--)
-    {
-        <div>
-            <div class="user">@users[i].Username</div>
-        </div>
-    }
-</div>
-
-<div>
     <p>Enter your login information</p>
 
-    <input id="user-name" @bind="@userLoginInfo.Username" />
-    <input id="password" type="password" @bind="userLoginInfo.Password" />
-    <button @onclick="@TryLogin">Login</button>
 
-    <p>@message</p>
+    <Fields>
+        <Field ColumnSize="ColumnSize.IsThird"> <FieldLabel>Username</FieldLabel> </Field>
+        <Field ColumnSize="ColumnSize.IsThird"> <FieldLabel>Password</FieldLabel> </Field>
+    </Fields>
+    <Fields>
+        <Field ColumnSize="ColumnSize.IsThird"> <TextEdit @bind-Text="@userLoginInfo.Username" /> </Field>
+        <Field ColumnSize="ColumnSize.IsThird"> <TextEdit Role="TextRole.Password" @bind-Text="@userLoginInfo.Password" /> </Field>
+        <Field ColumnSize="ColumnSize.IsThird"> <Button @onclick="@TryLogin" Color="Color.Primary">Login</Button> </Field>
+    </Fields>
+
 
 </div>
 
+<Accordion>
+    <Collapse Visible="@collapse1Visible">
+        <CollapseHeader>
+            <Heading Size="HeadingSize.Is5">
+                <Button Clicked="@(()=>collapse1Visible = !collapse1Visible)">Registered users:</Button>
+            </Heading>
+        </CollapseHeader>
+        <CollapseBody>
+            <div class="custom-control custom-radio">
+                @for (int i = users.Count - 1; i >= 0; i--)
+				{
+                <div>
+                    <input type="radio" class="custom-control-input" name="question1" id="@users[i].Username" value="@users[i].Username" @onchange="SelectionChanged" checked=@(selectedAnswer.Equals(@users[i].Username,StringComparison.OrdinalIgnoreCase)) />
+                    <label class="custom-control-label" for="@users[i].Username">@users[i].Username</label>
+                </div>
+		        }
+            </div>
+        </CollapseBody>
+    </Collapse>
+</Accordion>
+   
+<div>@message</div>
 
-@code
-{
+@code{
+    
+	string selectedAnswer = String.Empty;
+
+	void SelectionChanged(ChangeEventArgs args)
+    {
+         userLoginInfo.Username= args.Value.ToString();
+    }
+
+    bool collapse1Visible = false;
 
 	List<LoginInfo> users = new List<LoginInfo>() ;
 
@@ -37,7 +62,7 @@
 	LoginClient client = null;
 
 
-	string message = string.Empty;
+	string message = String.Empty;
 
 	[Parameter] public Action<string> OnAuthenticationChange { get; set; }
 
