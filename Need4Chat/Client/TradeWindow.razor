@@ -2,9 +2,15 @@
 @using Need4Chat.Shared
 @inject NavigationManager navigationManager
 
+<style>
+    .grid-container {
+        display: grid;
+        /*grid-auto-flow: row;*/
+        grid-template-columns: repeat(5, [col-start] auto [col-end]);
+    }
+    }
 
-
-
+</style>
 
 <h3>Trades</h3>
 
@@ -17,32 +23,32 @@
         {
             @foreach (var i in a.Value)
             {
-                <div>
-                    @(i.ID) - @(i.description)
-                    @if (i.tradeOffset > 0)
-                    {
-                        <span>Supplying @(i.tradeOffset)</span>
-                    }
-                    else
-                    {
-                        <span>Need @(-i.tradeOffset)</span>
-                    }
-                </div> <button @onclick="@(() => i.tradeOffset++)">Increase</button>
-                <button @onclick="@(() => i.tradeOffset--)">Decrease </button> <br />
+                <div class="grid-container">
+                    <div class="grid-column"> @(i.ID) - @(i.description) </div>
+                    <div class="grid-column"> @if (i.tradeOffset > 0) { <span>Supplying @(i.tradeOffset)</span> } else { <span>Need @(-i.tradeOffset)</span> } </div>
+
+                    <div class="grid-column"> @(tradeItemTotals[i]) needed for trade </div>
+
+                    <div class="grid-column"> <button @onclick="@(() => i.tradeOffset++)">Increase</button> </div>
+                    <div class="grid-column"> <button @onclick="@(() => i.tradeOffset--)">Decrease </button> </div>
+                </div> 
             }
         }
     </div>
 </div>
 
+<Link To="/"> Go to chat </Link>
+
 
 @code {
 
-        TradeClient client = null;
+    TradeClient client = null;
 
-        String Username = "tester";
-        String message = string.Empty;
+    String Username = "tester";
+    String message = string.Empty;
 
-        static List<ItemDetails> tradeItemDetails = new List<ItemDetails> {
+
+    static List<ItemDetails> tradeItemDetails = new List<ItemDetails> {
         new ItemDetails {ID = "1", description = "Apples"},
         new ItemDetails {ID = "2", description = "Oranges"},
         new ItemDetails {ID = "3", description = "Pears"},
@@ -50,52 +56,61 @@
         new ItemDetails {ID = "5", description = "Soap"},
     };
 
-        TradeDetails tradeDetails = new TradeDetails
+    static Dictionary<ItemDetails, int> tradeItemTotals = new Dictionary<ItemDetails, int>()
         {
-            userItemMap = new Dictionary<UserInfo, List<ItemDetails>>() { { new UserInfo { Username = "Phil", ID = "1" }, tradeItemDetails } }
+            {tradeItemDetails[0], 5 },
+            {tradeItemDetails[1], 4 },
+            {tradeItemDetails[2], 3 },
+            {tradeItemDetails[3], 2 },
+            {tradeItemDetails[4], 1 },
         };
 
-        /// <summary>
-        /// Start chat client
-        /// </summary>
-        async Task Trade()
+    TradeDetails tradeDetails = new TradeDetails
+    {
+        userItemMap = new Dictionary<UserInfo, List<ItemDetails>>() { { new UserInfo { Username = "Phil", ID = "1" }, tradeItemDetails } }
+    };
+
+    /// <summary>
+    /// Start chat client
+    /// </summary>
+    async Task Trade()
+    {
+        // check username is valid
+        //if (string.IsNullOrWhiteSpace(username))
+        //{
+        //	message = "Please enter a name";
+        //	return;
+        //};
+
+        try
         {
-            // check username is valid
-            //if (string.IsNullOrWhiteSpace(username))
-            //{
-            //	message = "Please enter a name";
-            //	return;
-            //};
+            //// remove old messages if any
+            //messages.Clear();
 
-            try
-            {
-                //// remove old messages if any
-                //messages.Clear();
+            // Create the chat client
+            string baseUrl = navigationManager.BaseUri;
 
-                // Create the chat client
-                string baseUrl = navigationManager.BaseUri;
+            //newTradeMessage = new TradeMessage() { Username = Username, Mine = true, DateAndTime = DateTime.Now };
 
-                //newTradeMessage = new TradeMessage() { Username = Username, Mine = true, DateAndTime = DateTime.Now };
+            client = new TradeClient(Username, baseUrl);
 
-                client = new TradeClient(Username, baseUrl);
+            //// add an event handler for incoming messages
+            //client.MessageReceived += MessageReceived;
+            //client.BulkMessagesReceived += BulkMessagesReceived;
 
-                //// add an event handler for incoming messages
-                //client.MessageReceived += MessageReceived;
-                //client.BulkMessagesReceived += BulkMessagesReceived;
+            // start the client
+            Console.WriteLine("Index: trade starting...");
 
-                // start the client
-                Console.WriteLine("Index: chat starting...");
-
-                await client.StartAsync();
-                Console.WriteLine("Index: chat started?");
-            }
-            catch (Exception e)
-            {
-                message = $"ERROR: Failed to start chat client: {e.Message}";
-                Console.WriteLine(e.Message);
-                Console.WriteLine(e.StackTrace);
-            }
+            await client.StartAsync();
+            Console.WriteLine("Index: trade started?");
         }
+        catch (Exception e)
+        {
+            message = $"ERROR: Failed to start trade client: {e.Message}";
+            Console.WriteLine(e.Message);
+            Console.WriteLine(e.StackTrace);
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {

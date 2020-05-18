@@ -1,5 +1,6 @@
 ﻿@page "/"
 
+
 @if (Chatting)
 {
     <ChatWindow Username="@Username"/>
@@ -9,6 +10,7 @@ else
     <LoginWindow OnAuthenticationChange="OpenChat" />
 }
 
+<Link To="trade"> Go to trade </Link>
 
 @code  {
     public bool Chatting = false;
