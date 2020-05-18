@@ -10,17 +10,21 @@
 </style>
 
 @*<Tooltip IsFade="true" Text="@(Formats.StandardDate(chatMessage.DateAndTime.ToLocalTime()))">*@
+<ul>
 
-    <div class="chat-message">
         @if (HasLink(chatMessage.Body))
         {
-            <p title="@(Formats.StandardDate(chatMessage.DateAndTime.ToLocalTime()))"> @chatMessage.Username: <a href=@chatMessage.Body> @chatMessage.Body</a></p>
+            <li class="chat-message" title="@(Formats.StandardDate(chatMessage.DateAndTime.ToLocalTime()))" >
+                @chatMessage.Username: <a href=@chatMessage.Body> @chatMessage.Body</a>
+            </li>
         }
         else
         {
-            <p title="@(Formats.StandardDate(chatMessage.DateAndTime.ToLocalTime()))"> @chatMessage.Username: @((MarkupString)chatMessage.Body.Replace(" ", "&nbsp;"))</p>
+            <li class="chat-message" title="@(Formats.StandardDate(chatMessage.DateAndTime.ToLocalTime()))" >
+                @chatMessage.Username: @((MarkupString)chatMessage.Body.Replace(" ", "&nbsp;"))
+            </li>
         }
-    </div>
+</ul>
 @*</Tooltip>*@
 
 @code {
