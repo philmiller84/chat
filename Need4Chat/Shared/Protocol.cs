@@ -17,7 +17,7 @@ namespace Need4Chat.Shared
         public string ID { get; set; } = string.Empty; // this is the GUID
         public string description { get; set; } = string.Empty;
         public decimal cost { get; set; }
-        public int tradeOffset { get; set; } = 0;
+        public int userItemOffset { get; set; } = 0;
     }
 
     public class LoginInfo

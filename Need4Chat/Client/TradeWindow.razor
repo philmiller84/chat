@@ -6,8 +6,7 @@
     .grid-container {
         display: grid;
         /*grid-auto-flow: row;*/
-        grid-template-columns: repeat(5, [col-start] auto [col-end]);
-    }
+        grid-template-columns: 100px 100px 100px 100px 100px;
     }
 
 </style>
@@ -24,13 +23,11 @@
             @foreach (var i in a.Value)
             {
                 <div class="grid-container">
-                    <div class="grid-column"> @(i.ID) - @(i.description) </div>
-                    <div class="grid-column"> @if (i.tradeOffset > 0) { <span>Supplying @(i.tradeOffset)</span> } else { <span>Need @(-i.tradeOffset)</span> } </div>
-
+                    <div class="grid-column"> @(i.description) </div>
+                    <div class="grid-column"> @if (i.userItemOffset > 0) { <span>Supplying @(i.userItemOffset)</span> } else { <span>Need @(-i.userItemOffset)</span> } </div>
                     <div class="grid-column"> @(tradeItemTotals[i]) needed for trade </div>
-
-                    <div class="grid-column"> <button @onclick="@(() => i.tradeOffset++)">Increase</button> </div>
-                    <div class="grid-column"> <button @onclick="@(() => i.tradeOffset--)">Decrease </button> </div>
+                    <div class="grid-column"> <button @onclick="@(e => UserChangedOffset(i, 1))">Increase</button> </div>
+                    <div class="grid-column"> <button @onclick="@(e => UserChangedOffset(i, -1))">Decrease </button> </div>
                 </div> 
             }
         }
@@ -46,6 +43,8 @@
 
     String Username = "tester";
     String message = string.Empty;
+
+    TradeMessage newTradeMessage;
 
 
     static List<ItemDetails> tradeItemDetails = new List<ItemDetails> {
@@ -117,4 +116,28 @@
         await Trade();
     }
 
+    async Task UserChangedOffset(ItemDetails item, int val)
+    {
+        item.userItemOffset += val;
+
+        // send message to hub
+        //await client.SendAsync(newTradeMessage);
+
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Inbound message
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    void MessageReceived(object sender, MessageReceivedEventArgs e)
+    {
+        //ProcessMessageEvent(e);
+
+        // Inform blazor the UI needs updating
+        StateHasChanged();
+    }
+
 }
+
