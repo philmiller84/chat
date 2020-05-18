@@ -9,58 +9,93 @@
 <h3>Trades</h3>
 
 
+<div>
+    <p>Item List</p>
 
-
+    <div>
+        @foreach (var a in tradeDetails.userItemMap)
+        {
+            @foreach (var i in a.Value)
+            {
+                <div>
+                    @(i.ID) - @(i.description)
+                    @if (i.tradeOffset > 0)
+                    {
+                        <span>Supplying @(i.tradeOffset)</span>
+                    }
+                    else
+                    {
+                        <span>Need @(-i.tradeOffset)</span>
+                    }
+                </div> <button @onclick="@(() => i.tradeOffset++)">Increase</button>
+                <button @onclick="@(() => i.tradeOffset--)">Decrease </button> <br />
+            }
+        }
+    </div>
+</div>
 
 
 @code {
 
-    TradeClient client = null;
+        TradeClient client = null;
 
-    String Username = "tester";
-    String message = string.Empty;
+        String Username = "tester";
+        String message = string.Empty;
 
-    /// <summary>
-    /// Start chat client
-    /// </summary>
-    async Task Trade()
-    {
-        // check username is valid
-        //if (string.IsNullOrWhiteSpace(username))
-        //{
-        //	message = "Please enter a name";
-        //	return;
-        //};
+        static List<ItemDetails> tradeItemDetails = new List<ItemDetails> {
+        new ItemDetails {ID = "1", description = "Apples"},
+        new ItemDetails {ID = "2", description = "Oranges"},
+        new ItemDetails {ID = "3", description = "Pears"},
+        new ItemDetails {ID = "4", description = "TP"},
+        new ItemDetails {ID = "5", description = "Soap"},
+    };
 
-        try
+        TradeDetails tradeDetails = new TradeDetails
         {
-            //// remove old messages if any
-            //messages.Clear()P;
+            userItemMap = new Dictionary<UserInfo, List<ItemDetails>>() { { new UserInfo { Username = "Phil", ID = "1" }, tradeItemDetails } }
+        };
 
-            // Create the chat client
-            string baseUrl = navigationManager.BaseUri;
-
-            //newTradeMessage = new TradeMessage() { Username = Username, Mine = true, DateAndTime = DateTime.Now };
-
-            client = new TradeClient(Username, baseUrl);
-
-            //// add an event handler for incoming messages
-            //client.MessageReceived += MessageReceived;
-            //client.BulkMessagesReceived += BulkMessagesReceived;
-
-            // start the client
-            Console.WriteLine("Index: chat starting...");
-
-            await client.StartAsync();
-            Console.WriteLine("Index: chat started?");
-        }
-        catch (Exception e)
+        /// <summary>
+        /// Start chat client
+        /// </summary>
+        async Task Trade()
         {
-            message = $"ERROR: Failed to start chat client: {e.Message}";
-            Console.WriteLine(e.Message);
-            Console.WriteLine(e.StackTrace);
+            // check username is valid
+            //if (string.IsNullOrWhiteSpace(username))
+            //{
+            //	message = "Please enter a name";
+            //	return;
+            //};
+
+            try
+            {
+                //// remove old messages if any
+                //messages.Clear();
+
+                // Create the chat client
+                string baseUrl = navigationManager.BaseUri;
+
+                //newTradeMessage = new TradeMessage() { Username = Username, Mine = true, DateAndTime = DateTime.Now };
+
+                client = new TradeClient(Username, baseUrl);
+
+                //// add an event handler for incoming messages
+                //client.MessageReceived += MessageReceived;
+                //client.BulkMessagesReceived += BulkMessagesReceived;
+
+                // start the client
+                Console.WriteLine("Index: chat starting...");
+
+                await client.StartAsync();
+                Console.WriteLine("Index: chat started?");
+            }
+            catch (Exception e)
+            {
+                message = $"ERROR: Failed to start chat client: {e.Message}";
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
         }
-    }
 
     protected override async Task OnInitializedAsync()
     {

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
 namespace Need4Chat.Shared
@@ -70,7 +69,7 @@ namespace Need4Chat.Shared
 
                 // add handler for receiving messages
                 _hubConnection.On<string, string>("ReceiveMessage", (user, message) => { HandleReceiveMessage(new ChatMessage() { Username = user, Body = message }); });
-                _hubConnection.On< IEnumerable<ChatMessage>>("BulkReceiveChatMessages", (chatMessages) => { BulkHandleReceiveMessages(chatMessages); });
+                _hubConnection.On<IEnumerable<ChatMessage>>("BulkReceiveChatMessages", (chatMessages) => { BulkHandleReceiveMessages(chatMessages); });
                 _hubConnection.On<ChatMessage>("ReceiveChatMessage", (chatMessage) => { HandleReceiveMessage(chatMessage); });
 
                 // start the connection
@@ -181,7 +180,7 @@ namespace Need4Chat.Shared
         {
             messageEventArgs = new List<MessageReceivedEventArgs>();
 
-            foreach(var c in chatMessages)
+            foreach (ChatMessage c in chatMessages)
             {
                 messageEventArgs.Add(new MessageReceivedEventArgs(c));
             }
