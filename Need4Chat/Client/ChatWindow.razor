@@ -166,6 +166,8 @@
             // clear input box
             newChatMessage.Body = string.Empty;
 
+            StateHasChanged();
+
             // send message to hub
             await client.SendAsync(messageForServer);
         }

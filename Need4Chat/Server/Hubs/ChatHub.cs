@@ -30,12 +30,14 @@ namespace Need4Chat.Server.Hubs
         /// <returns></returns>
         public async Task SendChatMessage(ChatMessage message)
         {
-            //Console.WriteLine($"Received json: {jsonString}");
             try
             {
-                //var message = JsonSerializer.Deserialize<ChatMessage>(jsonString);
-                dbMiddleware.AddMessage(message);
-                await Clients.All.BroadcastMessage(message);
+                bool messageAdded = false;
+                await Task.Run(() => messageAdded = dbMiddleware.AddMessage(message));
+                if (messageAdded)
+                    await Clients.All.BroadcastMessage(message);
+                else
+                    await Clients.Caller.LogMessageToUser(message.Username, "Failed to send message");
             }
             catch (Exception e)
             {

@@ -68,11 +68,11 @@ namespace Need4Chat.Server
         }
 
 
-        public void AddMessage(ChatMessage msg)
+        public bool AddMessage(ChatMessage msg)
         {
             if (msg.Body.Length > 200)
             {
-                return;
+                return false;
             }
 
             database1Context db = new database1Context();
@@ -80,7 +80,7 @@ namespace Need4Chat.Server
 
             if (q.Count() < 1)
             {
-                return;
+                return false;
             }
 
             Guid userID = q.FirstOrDefault();
@@ -89,6 +89,8 @@ namespace Need4Chat.Server
             db.Message.Add(t);
             //Console.WriteLine("Sending to DB: {0}", t.ToString());
             db.SaveChanges();
+
+            return true;
         }
 
         public IEnumerable<ChatMessage> GetMessages()
