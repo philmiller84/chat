@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Need4Chat.Shared
@@ -9,7 +10,7 @@ namespace Need4Chat.Shared
     /// <summary>
     /// Generic client class that interfaces .NET Standard/Blazor with SignalR Javascript client
     /// </summary>
-    public class ChatClient : IAsyncDisposable
+    public class ChatClient : IChatClient, IAsyncDisposable
     {
         public const string HUBURL = "/ChatHub";
 
@@ -67,10 +68,9 @@ namespace Need4Chat.Shared
                     .Build();
                 Console.WriteLine("ChatClient: calling Start()");
 
-                // add handler for receiving messages
-                _hubConnection.On<string, string>("ReceiveMessage", (user, message) => { HandleReceiveMessage(new ChatMessage() { Username = user, Body = message }); });
-                _hubConnection.On<IEnumerable<ChatMessage>>("BulkReceiveChatMessages", (chatMessages) => { BulkHandleReceiveMessages(chatMessages); });
-                _hubConnection.On<ChatMessage>("ReceiveChatMessage", (chatMessage) => { HandleReceiveMessage(chatMessage); });
+                _hubConnection.On<string, string>("LogMessageToUser", (user, message) => { LogMessageToUser(user, message); });
+                _hubConnection.On<IEnumerable<ChatMessage>>("BroadcastBulk", (chatMessages) => { BroadcastBulk(chatMessages); });
+                _hubConnection.On<ChatMessage>("BroadcastMessage", (chatMessage) => { BroadcastMessage(chatMessage); });
 
                 // start the connection
                 await _hubConnection.StartAsync();
@@ -81,6 +81,23 @@ namespace Need4Chat.Shared
                 // register user on hub to let other clients know they've joined
                 await _hubConnection.SendAsync("Register", _username);
             }
+        }
+
+        public Task LogMessageToUser(String username, string message)
+        {
+            HandleReceiveMessage(new ChatMessage() { Username = username, Body = message });
+            return Task.CompletedTask;
+        }
+
+        public Task BroadcastBulk(IEnumerable<ChatMessage> messages)
+        {
+            BulkHandleReceiveMessages(messages);
+            return Task.CompletedTask;
+        }
+        public Task BroadcastMessage(ChatMessage message)
+        {
+            HandleReceiveMessage(message);
+            return Task.CompletedTask;
         }
 
         private void BulkHandleReceiveMessages(IEnumerable<ChatMessage> chatMessages)

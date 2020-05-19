@@ -119,10 +119,9 @@
 
         var newMsg = new ChatMessage() { Username = e.Username, Body = e.Message, Mine = isMine, DateAndTime = e.Timestamp };
 
-
         messages.Add(newMsg);
-
     }
+
     /// <summary>
     /// Inbound message
     /// </summary>
@@ -162,11 +161,13 @@
     {
         if (!string.IsNullOrWhiteSpace(newChatMessage.Body))
         {
-            // send message to hub
-            await client.SendAsync(newChatMessage);
+            ChatMessage messageForServer = new ChatMessage { Username = newChatMessage.Username, Body = newChatMessage.Body };
 
             // clear input box
             newChatMessage.Body = string.Empty;
+
+            // send message to hub
+            await client.SendAsync(messageForServer);
         }
     }
 

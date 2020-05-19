@@ -1,8 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Need4Chat.Shared
 {
+
+    public interface IChatClient
+    {
+                
+        Task LogMessageToUser(String username, string message);
+        Task BroadcastBulk(IEnumerable<ChatMessage> messages);
+        Task BroadcastMessage(ChatMessage message);
+        Task SendAsync(ChatMessage message);
+    }
+
     public class ChatMessage
     {
         public string Username { get; set; } = "tester-ChatMessage";

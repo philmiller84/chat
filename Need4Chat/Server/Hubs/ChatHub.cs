@@ -9,7 +9,7 @@ namespace Need4Chat.Server.Hubs
     /// <summary>
     /// The SignalR hub 
     /// </summary>
-    public class ChatHub : Hub
+    public class ChatHub : Hub<IChatClient>
     {
         /// <summary>
         /// connectionId-to-username lookup
@@ -35,7 +35,7 @@ namespace Need4Chat.Server.Hubs
             {
                 //var message = JsonSerializer.Deserialize<ChatMessage>(jsonString);
                 dbMiddleware.AddMessage(message);
-                await Clients.All.SendAsync("ReceiveChatMessage", message);
+                await Clients.All.BroadcastMessage(message);
             }
             catch (Exception e)
             {
@@ -58,9 +58,7 @@ namespace Need4Chat.Server.Hubs
                 // maintain a lookup of connectionId-to-username
                 userLookup.Add(currentId, username);
                 // re-use existing message for now
-                await Clients.AllExcept(currentId).SendAsync(
-                    "ReceiveMessage",
-                    username, $"{username} joined the chat");
+                await Clients.AllExcept(currentId).LogMessageToUser(username, $"{username} joined the chat");
             }
         }
 
@@ -72,7 +70,7 @@ namespace Need4Chat.Server.Hubs
         {
             Console.WriteLine("Connected");
 
-            Clients.Caller.SendAsync("BulkReceiveChatMessages", dbMiddleware.GetMessages());
+            Clients.Caller.BroadcastBulk(dbMiddleware.GetMessages());
 
             return base.OnConnectedAsync();
         }
@@ -93,9 +91,7 @@ namespace Need4Chat.Server.Hubs
             }
 
             userLookup.Remove(id);
-            await Clients.AllExcept(Context.ConnectionId).SendAsync(
-                "ReceiveMessage",
-                username, $"{username} has left the chat");
+            await Clients.AllExcept(Context.ConnectionId).LogMessageToUser(username, $"{username} has left the chat");
             await base.OnDisconnectedAsync(e);
         }
 
