@@ -8,7 +8,7 @@ namespace Need4Chat.Shared
     /// <summary>
     /// Generic client class that interfaces .NET Standard/Blazor with SignalR Javascript client
     /// </summary>
-    public class LoginClient : IAsyncDisposable
+    public class LoginClient : ILoginClient, IAsyncDisposable
     {
         public const string HUBURL = "/LoginHub";
 
@@ -67,16 +67,8 @@ namespace Need4Chat.Shared
                 Console.WriteLine("LoginClient: calling Start()");
 
                 // add handler for receiving messages
-                _hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
-                {
-                    HandleReceiveMessage(user, message);
-                });
-
-
-                _hubConnection.On<string, string>("RegisterUserLogin", (user, message) =>
-                {
-                    RegisterUserLogin(user, message);
-                });
+                _hubConnection.On<string, string>("ReceiveMessage", (user, message) => { ReceiveMessage(user, message); });
+                _hubConnection.On<string, string>("RegisterUserLogin", (user, message) => { RegisterUserLogin(user, message); });
 
                 // start the connection
                 await _hubConnection.StartAsync();
@@ -94,10 +86,18 @@ namespace Need4Chat.Shared
         /// </summary>
         /// <param name="method">event name</param>
         /// <param name="message">message content</param>
-        private void HandleReceiveMessage(string username, string message)
+        public Task ReceiveMessage(string username, string message)
         {
             // raise an event to subscribers
             MessageReceived?.Invoke(this, new LoginReceivedEventArgs(username, "", message));
+            return Task.CompletedTask;
+        }
+
+        public Task RegisterUserLogin(string username, string message)
+        {
+            // raise an event to subscribers
+            LoginMessageReceived?.Invoke(this, new LoginReceivedEventArgs(username, "", message));
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -122,13 +122,6 @@ namespace Need4Chat.Shared
             }
 
             await _hubConnection.SendAsync("SendLoginMessage", userLoginInfo);
-        }
-
-
-        private void RegisterUserLogin(string username, string message)
-        {
-            // raise an event to subscribers
-            LoginMessageReceived?.Invoke(this, new LoginReceivedEventArgs(username, "", message));
         }
 
         /// <summary>

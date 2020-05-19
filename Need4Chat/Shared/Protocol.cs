@@ -7,7 +7,6 @@ namespace Need4Chat.Shared
 
     public interface IChatClient
     {
-                
         Task LogMessageToUser(String username, string message);
         Task BroadcastBulk(IEnumerable<ChatMessage> messages);
         Task BroadcastMessage(ChatMessage message);
@@ -29,6 +28,13 @@ namespace Need4Chat.Shared
         public string description { get; set; } = string.Empty;
         public decimal cost { get; set; }
         public int userItemOffset { get; set; } = 0;
+    }
+
+    public interface ILoginClient
+    {
+        Task ReceiveMessage(string username, string message);
+        Task RegisterUserLogin(string username, string message);
+        Task SendAsync(LoginInfo userLoginInfo);
     }
 
     public class LoginInfo

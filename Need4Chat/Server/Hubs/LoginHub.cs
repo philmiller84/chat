@@ -10,7 +10,7 @@ namespace Need4Chat.Server.Hubs
     /// <summary>
     /// The SignalR hub 
     /// </summary>
-    public class LoginHub : Hub
+    public class LoginHub : Hub<ILoginClient>
     {
         /// <summary>
         /// connectionId-to-username lookup
@@ -36,12 +36,12 @@ namespace Need4Chat.Server.Hubs
             if (dbMiddleware.TryLoginAttempt(userInfo))
             {
                 string message = "User logged in";
-                await Clients.All.SendAsync("RegisterUserLogin", userLogin.Username, message);
+                await Clients.All.RegisterUserLogin(userLogin.Username, message);
             }
             else
             {
                 string message = "Attempted login failed";
-                await Clients.Caller.SendAsync("RegisterUserLogin", userLogin.Username, message);
+                await Clients.Caller.RegisterUserLogin(userLogin.Username, message);
             }
         }
 
@@ -62,12 +62,7 @@ namespace Need4Chat.Server.Hubs
                 //	"ReceiveMessage",
                 //	username, $"{username} joined the chat");
             }
-            await Clients.AllExcept(currentId).SendAsync(
-                "ReceiveMessage",
-                username, $"{username} registered");
-
-            //return TaskResult;
-
+            await Clients.AllExcept(currentId).ReceiveMessage( username, $"{username} registered"); 
         }
 
         /// <summary>
@@ -80,7 +75,7 @@ namespace Need4Chat.Server.Hubs
 
             foreach (User u in dbMiddleware.GetRegisteredUsers())
             {
-                Clients.Caller.SendAsync("ReceiveMessage", u.Name, "registered user");
+                Clients.Caller.ReceiveMessage(u.Name, "registered user");
             }
 
             return base.OnConnectedAsync();
