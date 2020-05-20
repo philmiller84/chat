@@ -16,8 +16,12 @@ namespace Need4Chat.Server.Models
         }
 
         public virtual DbSet<Message> Message { get; set; }
+        public virtual DbSet<Trade> Trade { get; set; }
+        public virtual DbSet<TradeOffset> TradeOffset { get; set; }
         public virtual DbSet<TradeRequirement> TradeRequirement { get; set; }
+        public virtual DbSet<TradeUser> TradeUser { get; set; }
         public virtual DbSet<User> User { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -39,6 +43,27 @@ namespace Need4Chat.Server.Models
                 entity.Property(e => e.UserId).HasColumnName("user_id");
             });
 
+            modelBuilder.Entity<Trade>(entity =>
+            {
+                entity.ToTable("trade");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+            });
+
+            modelBuilder.Entity<TradeOffset>(entity =>
+            {
+                entity.HasKey(e => new { e.TradeRequirementId, e.UserId })
+                    .HasName("PK__trade_of__C532413FE66B3A8B");
+
+                entity.ToTable("trade_offset");
+
+                entity.Property(e => e.TradeRequirementId).HasColumnName("trade_requirement_id");
+
+                entity.Property(e => e.UserId).HasColumnName("user_id");
+
+                entity.Property(e => e.Offset).HasColumnName("offset");
+            });
+
             modelBuilder.Entity<TradeRequirement>(entity =>
             {
                 entity.HasKey(e => new { e.TradeId, e.ItemId })
@@ -55,6 +80,18 @@ namespace Need4Chat.Server.Models
                     .ValueGeneratedOnAdd();
 
                 entity.Property(e => e.Offset).HasColumnName("offset");
+            });
+
+            modelBuilder.Entity<TradeUser>(entity =>
+            {
+                entity.HasKey(e => new { e.TradeId, e.UserId })
+                    .HasName("PK__trade_us__4164B887D393579C");
+
+                entity.ToTable("trade_user");
+
+                entity.Property(e => e.TradeId).HasColumnName("trade_id");
+
+                entity.Property(e => e.UserId).HasColumnName("user_id");
             });
 
             modelBuilder.Entity<User>(entity =>
