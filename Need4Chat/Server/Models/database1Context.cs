@@ -19,7 +19,6 @@ namespace Need4Chat.Server.Models
         public virtual DbSet<TradeRequirement> TradeRequirement { get; set; }
         public virtual DbSet<User> User { get; set; }
 
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Message>(entity =>
@@ -42,14 +41,12 @@ namespace Need4Chat.Server.Models
 
             modelBuilder.Entity<TradeRequirement>(entity =>
             {
-                entity.HasKey(e => new { e.TradeId, e.UserId, e.ItemId })
-                    .HasName("PK__trade_re__9D36BA880D113B90");
+                entity.HasKey(e => new { e.TradeId, e.ItemId })
+                    .HasName("PK__trade_re__6FDF7B0A880B38D3");
 
                 entity.ToTable("trade_requirement");
 
                 entity.Property(e => e.TradeId).HasColumnName("trade_id");
-
-                entity.Property(e => e.UserId).HasColumnName("user_id");
 
                 entity.Property(e => e.ItemId).HasColumnName("item_id");
 
