@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Need4Chat.Server.Models
 {
@@ -14,39 +16,55 @@ namespace Need4Chat.Server.Models
         }
 
         public virtual DbSet<Message> Message { get; set; }
+        public virtual DbSet<TradeRequirement> TradeRequirement { get; set; }
         public virtual DbSet<User> User { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Message>(entity =>
             {
-                entity.HasKey(e => new { e.User, e.Timestamp })
-                    .HasName("PK__message__977B43D1911DB29B");
-
                 entity.ToTable("message");
 
-                entity.Property(e => e.User).HasColumnName("user");
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Text)
+                    .HasColumnName("text")
+                    .HasMaxLength(200);
 
                 entity.Property(e => e.Timestamp)
                     .HasColumnName("timestamp")
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
 
+                entity.Property(e => e.UserId).HasColumnName("user_id");
+            });
+
+            modelBuilder.Entity<TradeRequirement>(entity =>
+            {
+                entity.HasKey(e => new { e.TradeId, e.UserId, e.ItemId })
+                    .HasName("PK__trade_re__9D36BA880D113B90");
+
+                entity.ToTable("trade_requirement");
+
+                entity.Property(e => e.TradeId).HasColumnName("trade_id");
+
+                entity.Property(e => e.UserId).HasColumnName("user_id");
+
+                entity.Property(e => e.ItemId).HasColumnName("item_id");
+
                 entity.Property(e => e.Id)
                     .HasColumnName("id")
-                    .HasDefaultValueSql("(newid())");
+                    .ValueGeneratedOnAdd();
 
-                entity.Property(e => e.Text)
-                    .HasColumnName("text")
-                    .HasMaxLength(200);
+                entity.Property(e => e.Offset).HasColumnName("offset");
             });
 
             modelBuilder.Entity<User>(entity =>
             {
                 entity.ToTable("user");
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("id")
-                    .HasDefaultValueSql("(newid())");
+                entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.LastLogin)
                     .HasColumnName("last_login")
@@ -61,7 +79,7 @@ namespace Need4Chat.Server.Models
                 entity.Property(e => e.Password)
                     .IsRequired()
                     .HasColumnName("password")
-                    .HasMaxLength(20);
+                    .HasMaxLength(22);
 
                 entity.Property(e => e.PasswordHint)
                     .IsRequired()

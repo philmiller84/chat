@@ -9,7 +9,7 @@ namespace Need4Chat.Shared
     /// <summary>
     /// Generic client class that interfaces .NET Standard/Blazor with SignalR Javascript client
     /// </summary>
-    public class TradeClient : IAsyncDisposable
+    public class TradeClient : ITradeClient, IAsyncDisposable
     {
         public const string HUBURL = "/TradeHub";
 
@@ -60,15 +60,12 @@ namespace Need4Chat.Shared
             if (!_started)
             {
                 // create the connection using the .NET SignalR client
-                _hubConnection = new HubConnectionBuilder()
-                    .WithUrl(_hubUrl)
-                    .Build();
+                _hubConnection = new HubConnectionBuilder().WithUrl(_hubUrl).Build();
                 Console.WriteLine("TradeClient: calling Start()");
 
                 // add handler for receiving messages
-                //_hubConnection.On<string, string>("ReceiveMessage", (user, message) => { HandleReceiveMessage(new TradeMessage() { Username = user, Body = message }); });
-                //_hubConnection.On<IEnumerable<TradeMessage>>("BulkReceiveTradeMessages", (tradeMessages) => { BulkHandleReceiveMessages(tradeMessages); });
-                //_hubConnection.On<TradeMessage>("ReceiveTradeMessage", (tradeMessage) => { HandleReceiveMessage(tradeMessage); });
+                _hubConnection.On<ItemDetails, UserInfo>("UpdateItemOffsetForUser", (item, user) => { UpdateItemOffsetForUser(item, user); });
+                _hubConnection.On<IEnumerable<ItemDetails>>("BroadcastChanges", (itemChanges) => { BroadcastChanges(itemChanges); });
 
                 // start the connection
                 await _hubConnection.StartAsync();
@@ -104,7 +101,7 @@ namespace Need4Chat.Shared
         /// Instance classes should subscribe to this event
         /// </remarks>
         //public event MessageReceivedEventHandler MessageReceived;
-        //public event BulkMessagesReceivedEventHandler BulkMessagesReceived;
+        public event ItemOffsetChangeReceivedEventHandler ItemOffsetChangeReceived;
 
         /// <summary>
         /// Send a message to the hub
@@ -157,6 +154,18 @@ namespace Need4Chat.Shared
             Console.WriteLine("TradeClient: Disposing");
             await StopAsync();
         }
+
+        public Task UpdateItemOffsetForUser(ItemDetails item, UserInfo user)
+        {
+            
+            //ItemOffsetChangeReceived?.Invoke(this, new ItemOffsetChangeReceivedEventArgs(tradeMessages));
+            throw new NotImplementedException();
+        }
+
+        public Task BroadcastChanges(IEnumerable<ItemDetails> itemChanges)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     /// <summary>
@@ -165,25 +174,25 @@ namespace Need4Chat.Shared
     /// <param name="sender">the SignalRclient instance</param>
     /// <param name="e">Event args</param>
     //public delegate void MessageReceivedEventHandler(object sender, MessageReceivedEventArgs e);
-    //public delegate void BulkMessagesReceivedEventHandler(object sender, BulkMessagesReceivedEventArgs e);
+    public delegate void ItemOffsetChangeReceivedEventHandler(object sender, ItemOffsetChangeReceivedEventArgs e);
 
     /// <summary>
     /// Message received argument class
     /// </summary>
-    //public class BulkMessagesReceivedEventArgs : EventArgs
-    //{
-    //    public List<MessageReceivedEventArgs> messageEventArgs = null;
+    public class ItemOffsetChangeReceivedEventArgs : EventArgs
+    {
+        //public List<MessageReceivedEventArgs> messageEventArgs = null;
 
-    //    public BulkMessagesReceivedEventArgs(IEnumerable<TradeMessage> tradeMessages)
-    //    {
-    //        messageEventArgs = new List<MessageReceivedEventArgs>();
+        public ItemOffsetChangeReceivedEventArgs(IEnumerable<TradeMessage> tradeMessages)
+        {
+            //messageEventArgs = new List<MessageReceivedEventArgs>();
 
-    //        foreach (var c in tradeMessages)
-    //        {
-    //            messageEventArgs.Add(new MessageReceivedEventArgs(c));
-    //        }
-    //    }
-    //}
+            foreach (var c in tradeMessages)
+            {
+                //messageEventArgs.Add(new MessageReceivedEventArgs(c));
+            }
+        }
+    }
 
     //public class MessageReceivedEventArgs : EventArgs
     //{

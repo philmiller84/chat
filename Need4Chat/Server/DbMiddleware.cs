@@ -76,16 +76,16 @@ namespace Need4Chat.Server
             }
 
             database1Context db = new database1Context();
-            IQueryable<Guid> q = from r in db.User where r.Name == msg.Username select r.Id;
+            IQueryable<int> q = from r in db.User where r.Name == msg.Username select r.Id;
 
             if (q.Count() < 1)
             {
                 return false;
             }
 
-            Guid userID = q.FirstOrDefault();
+            int userID = q.FirstOrDefault();
 
-            Message t = new Message() { User = userID, Text = msg.Body };
+            Message t = new Message() { UserId = userID, Text = msg.Body };
             db.Message.Add(t);
             //Console.WriteLine("Sending to DB: {0}", t.ToString());
             db.SaveChanges();
@@ -97,7 +97,7 @@ namespace Need4Chat.Server
         {
             database1Context db = new database1Context();
             IQueryable<ChatMessage> q = from r in db.Message
-                                        join u in db.User on r.User equals u.Id
+                                        join u in db.User on r.UserId equals u.Id
                                         orderby r.Timestamp ascending
                                         select new ChatMessage { Username = u.Name, Body = r.Text, DateAndTime = r.Timestamp };
             return q.ToList<ChatMessage>();
