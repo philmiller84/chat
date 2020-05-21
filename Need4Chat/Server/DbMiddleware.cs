@@ -68,6 +68,22 @@ namespace Need4Chat.Server
         }
 
 
+        public bool AddNewItem(ItemDetails item)
+        {
+
+            database1Context db = new database1Context();
+            IQueryable<int> q = from r in db.Item where r.Name == item.description select r.Id;
+
+            if (q.Count() > 0)
+                return false;
+
+            Item i = new Item() { Name = item.description };
+            db.Item.Add(i);
+            db.SaveChanges();
+
+            return true;
+        }
+
         public bool AddMessage(ChatMessage msg)
         {
             if (msg.Body.Length > 200)

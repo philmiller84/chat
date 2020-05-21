@@ -23,7 +23,6 @@ namespace Need4Chat.Shared
         /// <remarks>
         /// Changed client to accept just the base server URL so any client can use it, including ConsoleApp!
         /// </remarks>
-
         public TradeClient(string username, string siteUrl)
         {
             // check inputs
@@ -74,8 +73,14 @@ namespace Need4Chat.Shared
                 _started = true;
 
                 // register user on hub to let other clients know they've joined
-                await _hubConnection.SendAsync("Register", _username);
+                //await _hubConnection.SendAsync("Register", _username);
             }
+        }
+
+        public Task RequestNewTradeId(ref int tradeId)
+        {
+            tradeId = 110;
+            return Task.CompletedTask;
         }
 
         private void BulkHandleReceiveMessages(IEnumerable<TradeMessage> tradeMessages)
@@ -103,11 +108,12 @@ namespace Need4Chat.Shared
         //public event MessageReceivedEventHandler MessageReceived;
         public event ItemOffsetChangeReceivedEventHandler ItemOffsetChangeReceived;
 
+
         /// <summary>
         /// Send a message to the hub
         /// </summary>
         /// <param name="message">message to send</param>
-        public async Task SendAsync(TradeMessage message)
+        public async Task SendAsyncObject(string method, object message)
         {
             // check we are connected
             if (!_started)
@@ -120,12 +126,31 @@ namespace Need4Chat.Shared
                 //string jsonString = JsonSerializer.Serialize(message);
 
                 //await _hubConnection.SendAsync("SendTradeMessage", jsonString);
-                await _hubConnection.SendAsync("SendTradeMessage", message);
+                await _hubConnection.SendAsync(method, message);
             }
             catch
             {
                 throw new Exception("Send to hub failed");
             }
+        }
+
+
+        /// <summary>
+        /// Send a message to the hub to add a new item
+        /// </summary>
+        /// <param name="item">item to add</param>
+        public async Task AddNewItem(ItemDetails item)
+        {
+            await SendAsyncObject("AddNewItem", item);
+        }
+
+        /// <summary>
+        /// Send a message to the hub
+        /// </summary>
+        /// <param name="message">message to send</param>
+        public async Task SendAsync(TradeMessage message)
+        {
+            await SendAsyncObject("SendTradeMessage", message);
         }
 
         /// <summary>

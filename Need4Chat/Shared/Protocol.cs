@@ -51,12 +51,14 @@ namespace Need4Chat.Shared
 
     public interface ITradeClient
     {
+        Task AddNewItem(ItemDetails item);
         Task UpdateItemOffsetForUser(ItemDetails item, UserInfo user);
         Task BroadcastChanges(IEnumerable<ItemDetails> itemChanges);
     }
 
     public class TradeDetails
     {
+        public int ID { get; set; }
         public Dictionary<UserInfo, List<ItemDetails>> userItemMap { get; set; }
     }
 

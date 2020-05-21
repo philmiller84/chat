@@ -65,6 +65,7 @@ namespace Need4Chat.Server
                 endpoints.MapDefaultControllerRoute();
 
                 // SignalR endpoint routing setup
+                endpoints.MapHub<Hubs.TradeHub>(Shared.TradeClient.HUBURL);
                 endpoints.MapHub<Hubs.ChatHub>(Shared.ChatClient.HUBURL);
                 endpoints.MapHub<Hubs.LoginHub>(Shared.LoginClient.HUBURL);
 

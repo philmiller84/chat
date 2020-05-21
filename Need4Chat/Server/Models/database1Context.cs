@@ -15,6 +15,7 @@ namespace Need4Chat.Server.Models
         {
         }
 
+        public virtual DbSet<Item> Item { get; set; }
         public virtual DbSet<Message> Message { get; set; }
         public virtual DbSet<Trade> Trade { get; set; }
         public virtual DbSet<TradeOffset> TradeOffset { get; set; }
@@ -22,9 +23,20 @@ namespace Need4Chat.Server.Models
         public virtual DbSet<TradeUser> TradeUser { get; set; }
         public virtual DbSet<User> User { get; set; }
 
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Item>(entity =>
+            {
+                entity.ToTable("item");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasColumnName("name")
+                    .HasMaxLength(200);
+            });
+
             modelBuilder.Entity<Message>(entity =>
             {
                 entity.ToTable("message");

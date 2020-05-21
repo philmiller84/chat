@@ -1,5 +1,4 @@
 ﻿@page "/trade"
-@using Need4Chat.Shared
 @inject NavigationManager navigationManager
 
 <style>
@@ -13,61 +12,49 @@
 
 <h3>Trades</h3>
 
+<div>
+
+</div>
 
 <div>
-    <p>Item List</p>
-
-    <div>
-        @foreach (var a in tradeDetails.userItemMap)
+    @if (showTradeDetails == false)
+    {
+        @foreach (var t in availableTrades)
         {
-            @foreach (var i in a.Value)
-            {
-                <div class="grid-container">
-                    <div class="grid-column"> @(i.description) </div>
-                    <div class="grid-column"> @if (i.userItemOffset > 0) { <span>Supplying @(i.userItemOffset)</span> } else { <span>Need @(-i.userItemOffset)</span> } </div>
-                    <div class="grid-column"> @(tradeItemTotals[i]) needed for trade </div>
-                    <div class="grid-column"> <button @onclick="@(e => UserChangedOffset(i, 1))">Increase</button> </div>
-                    <div class="grid-column"> <button @onclick="@(e => UserChangedOffset(i, -1))">Decrease </button> </div>
-                </div> 
-            }
+            <Button @onclick="() => ShowTrade(t.ID)">Open trade @t.ID</Button>
         }
-    </div>
+
+        <Button @onclick="GetNewTradeId"> Start New Trade </Button>
+    }
+    else
+    {
+        <TradeDetailsWindow tradeClient="@client" tradeId="@tradeId"></TradeDetailsWindow>
+        <Button @onclick="HideTradeDetails"> Hide Trade</Button>
+    }
+
+
 </div>
+
 
 <Link To="/"> Go to chat </Link>
 
 
 @code {
 
+
+    int tradeId = 0;
+    bool showTradeDetails = false;
     TradeClient client = null;
 
     String Username = "tester";
     String message = string.Empty;
 
+    List<TradeDetails> availableTrades = new List<TradeDetails> { new TradeDetails { ID = 1 } };
+
+    TradeDetails selectedTrade = null;
+
     TradeMessage newTradeMessage;
 
-
-    static List<ItemDetails> tradeItemDetails = new List<ItemDetails> {
-        new ItemDetails {ID = "1", description = "Apples"},
-        new ItemDetails {ID = "2", description = "Oranges"},
-        new ItemDetails {ID = "3", description = "Pears"},
-        new ItemDetails {ID = "4", description = "TP"},
-        new ItemDetails {ID = "5", description = "Soap"},
-    };
-
-    static Dictionary<ItemDetails, int> tradeItemTotals = new Dictionary<ItemDetails, int>()
-        {
-            {tradeItemDetails[0], 5 },
-            {tradeItemDetails[1], 4 },
-            {tradeItemDetails[2], 3 },
-            {tradeItemDetails[3], 2 },
-            {tradeItemDetails[4], 1 },
-        };
-
-    TradeDetails tradeDetails = new TradeDetails
-    {
-        userItemMap = new Dictionary<UserInfo, List<ItemDetails>>() { { new UserInfo { Username = "Phil", ID = "1" }, tradeItemDetails } }
-    };
 
     /// <summary>
     /// Start chat client
@@ -116,16 +103,6 @@
         await Trade();
     }
 
-    async Task UserChangedOffset(ItemDetails item, int val)
-    {
-        item.userItemOffset += val;
-
-        // send message to hub
-        //await client.SendAsync(newTradeMessage);
-
-        StateHasChanged();
-    }
-
     /// <summary>
     /// Inbound message
     /// </summary>
@@ -136,6 +113,30 @@
         //ProcessMessageEvent(e);
 
         // Inform blazor the UI needs updating
+        StateHasChanged();
+    }
+
+    async Task GetNewTradeId()
+    {
+        await client.RequestNewTradeId(ref tradeId);
+        if (tradeId > 0)
+        {
+            showTradeDetails = true;
+            StateHasChanged();
+        }
+    }
+
+
+    async Task ShowTrade(int tradeId)
+    {
+        // lookup trade
+        showTradeDetails = true;
+        StateHasChanged();
+    }
+
+    async Task HideTradeDetails()
+    {
+        showTradeDetails = false;
         StateHasChanged();
     }
 
