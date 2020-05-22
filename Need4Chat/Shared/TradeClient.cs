@@ -65,6 +65,7 @@ namespace Need4Chat.Shared
                 // add handler for receiving messages
                 _hubConnection.On<ItemDetails, UserInfo>("UpdateItemOffsetForUser", (item, user) => { UpdateItemOffsetForUser(item, user); });
                 _hubConnection.On<IEnumerable<ItemDetails>>("BroadcastChanges", (itemChanges) => { BroadcastChanges(itemChanges); });
+                _hubConnection.On<IEnumerable<ItemDetails>>("SendAvailableItemsToUser", (availableItems) => { SendAvailableItemsToUser(availableItems); });
 
                 // start the connection
                 await _hubConnection.StartAsync();
@@ -107,6 +108,7 @@ namespace Need4Chat.Shared
         /// </remarks>
         //public event MessageReceivedEventHandler MessageReceived;
         public event ItemOffsetChangeReceivedEventHandler ItemOffsetChangeReceived;
+        public event ItemPicklistChangeEventHandler ItemPicklistChangeReceived;
 
 
         /// <summary>
@@ -126,7 +128,11 @@ namespace Need4Chat.Shared
                 //string jsonString = JsonSerializer.Serialize(message);
 
                 //await _hubConnection.SendAsync("SendTradeMessage", jsonString);
-                await _hubConnection.SendAsync(method, message);
+
+                if(message != null)
+                    await _hubConnection.SendAsync(method, message);
+                else
+                    await _hubConnection.SendAsync(method);
             }
             catch
             {
@@ -142,6 +148,16 @@ namespace Need4Chat.Shared
         public async Task AddNewItem(ItemDetails item)
         {
             await SendAsyncObject("AddNewItem", item);
+        }
+
+        public async Task GetAvailableItems()
+        {
+            await SendAsyncObject("GetAvailableItems", null);
+        }
+
+        public async Task SendAvailableItemsToUser(IEnumerable<ItemDetails> items)
+        {
+            ItemPicklistChangeReceived?.Invoke(this, new ItemPicklistChangeReceivedEventArgs(items));
         }
 
         /// <summary>
@@ -200,6 +216,7 @@ namespace Need4Chat.Shared
     /// <param name="e">Event args</param>
     //public delegate void MessageReceivedEventHandler(object sender, MessageReceivedEventArgs e);
     public delegate void ItemOffsetChangeReceivedEventHandler(object sender, ItemOffsetChangeReceivedEventArgs e);
+    public delegate void ItemPicklistChangeEventHandler(object sender, ItemPicklistChangeReceivedEventArgs e);
 
     /// <summary>
     /// Message received argument class
@@ -216,6 +233,16 @@ namespace Need4Chat.Shared
             {
                 //messageEventArgs.Add(new MessageReceivedEventArgs(c));
             }
+        }
+    }
+
+    public class ItemPicklistChangeReceivedEventArgs : EventArgs
+    {
+        public List<ItemDetails> itemEventArgs = null;
+
+        public ItemPicklistChangeReceivedEventArgs(IEnumerable<ItemDetails> availableItems)
+        {
+            itemEventArgs = new List<ItemDetails>(availableItems);
         }
     }
 

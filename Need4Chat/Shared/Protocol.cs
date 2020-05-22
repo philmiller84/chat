@@ -54,6 +54,8 @@ namespace Need4Chat.Shared
         Task AddNewItem(ItemDetails item);
         Task UpdateItemOffsetForUser(ItemDetails item, UserInfo user);
         Task BroadcastChanges(IEnumerable<ItemDetails> itemChanges);
+
+        Task SendAvailableItemsToUser(IEnumerable<ItemDetails> availableItems);
     }
 
     public class TradeDetails

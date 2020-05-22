@@ -1,7 +1,7 @@
 ﻿@using Need4Chat.Client;
 <h3>ItemDetailsWindow</h3>
 
-<Form  @onsubmit="() => tradeClient.AddNewItem(newItem)">
+<Form  @onsubmit="() => TryAddItem(newItem)">
     <TextEdit @bind-Text="@newItem.description" Placeholder="enter item name..." />
 </Form>
 
@@ -16,5 +16,14 @@
 
     protected override async Task OnInitializedAsync()
     {
+    }
+
+    async Task TryAddItem(ItemDetails newItem)
+    {
+        ItemDetails itemToAdd = new ItemDetails { description = newItem.description };
+        newItem.description = string.Empty;
+        StateHasChanged();
+
+        await tradeClient.AddNewItem(itemToAdd);
     }
 }

@@ -5,7 +5,7 @@
 
     <div>
 
-        @if(showItemDetails == false)
+        @if (showItemDetails == false)
         {
             <Button @onclick="() => showItemDetails = true">Add another item</Button>
         }
@@ -16,6 +16,20 @@
         }
 
 
+        @if (showAvailableItems == false)
+        {
+            <Button @onclick="() => GetAvailableItems()">Add Item To Trade</Button>
+        }
+        else
+        {
+            @foreach (var i in availableItems)
+            {
+                <ul>
+                    <li>@(i.description)</li>
+                </ul>
+            }
+            <Button @onclick="() => showAvailableItems = false">Hide items</Button>
+        }
 
         @foreach (var a in tradeDetails.userItemMap)
         {
@@ -46,6 +60,9 @@
     public int tradeId { get; set; }
 
 
+
+    List<ItemDetails> availableItems = new List<ItemDetails>();
+    bool showAvailableItems = false;
     bool showItemDetails = false;
 
     static List<ItemDetails> tradeItemDetails = new List<ItemDetails> {
@@ -77,8 +94,24 @@
 
         // send message to hub
         //await client.SendAsync(newTradeMessage);
-
         StateHasChanged();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+
+        tradeClient.ItemPicklistChangeReceived += PicklistReceived;
+    }
+
+    void PicklistReceived(object sender, ItemPicklistChangeReceivedEventArgs e)
+    {
+        availableItems = new List<ItemDetails>(e.itemEventArgs);
+        showAvailableItems = true;
+        StateHasChanged();
+    }
+
+    public async Task GetAvailableItems()
+    {
+        await tradeClient.GetAvailableItems();
     }
 
 }

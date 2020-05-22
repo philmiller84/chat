@@ -84,6 +84,27 @@ namespace Need4Chat.Server
             return true;
         }
 
+        public bool GetAvailableItems(List<ItemDetails> items)
+        {
+            database1Context db = new database1Context();
+            IQueryable<string> q = from r in db.Item select r.Name;
+
+            if (q.Count() == 0)
+                return false;
+
+
+            items.Clear();
+            foreach(var i in q)
+            {
+                items.Add(new ItemDetails { description = i });
+            }
+            //Item i = new Item() { Name = item.description };
+            //db.Item.Add(i);
+            //db.SaveChanges();
+
+            return true;
+        }
+
         public bool AddMessage(ChatMessage msg)
         {
             if (msg.Body.Length > 200)
