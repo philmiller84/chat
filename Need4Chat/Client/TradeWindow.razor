@@ -5,7 +5,7 @@
     .grid-container {
         display: grid;
         /*grid-auto-flow: row;*/
-        grid-template-columns: 100px 150px 150px 150px 150px;
+        grid-template-columns: 100px 200px 200px 150px 150px;
     }
 
 </style>
@@ -17,20 +17,14 @@
 </div>
 
 <div>
-    @if (showTradeDetails == false)
-    {
-        @foreach (var t in availableTrades)
+        @*@foreach (var t in availableTrades)
         {
             <Button @onclick="() => ShowTrade(t.ID)">Open trade @t.ID</Button>
-        }
+        }*@
 
-        <Button @onclick="GetNewTradeId"> Start New Trade </Button>
-    }
-    else
-    {
+    
         <TradeDetailsWindow tradeClient="@client" tradeId="@tradeId"></TradeDetailsWindow>
-        <Button @onclick="HideTradeDetails"> Hide Trade</Button>
-    }
+   
 
 
 </div>
@@ -126,20 +120,6 @@
             showTradeDetails = true;
             StateHasChanged();
         }
-    }
-
-
-    async Task ShowTrade(int tradeId)
-    {
-        // lookup trade
-        showTradeDetails = true;
-        StateHasChanged();
-    }
-
-    async Task HideTradeDetails()
-    {
-        showTradeDetails = false;
-        StateHasChanged();
     }
 
 }

@@ -17,38 +17,32 @@
 
     <div>
 
-        @if (showItemDetails == false)
-        {
-            <Button @onclick="() => showItemDetails = true">Add another item</Button>
-        }
-        else
+        <div class="grid-container">
+            <div class="grid-column"><Button @onclick="() => SwitchPane(TradeDetailsPane.ITEM_ENTRY)">Show item entry form</Button></div>
+            <div class="grid-column"><Button @onclick="async () => { await tradeClient.GetAvailableItems();  SwitchPane(TradeDetailsPane.AVAILABLE_ITEMS); }">Select Items to Trade</Button></div>
+            <div class="grid-column"><Button @onclick="() => SwitchPane(TradeDetailsPane.CURRENT_TRADE)">Show current trade</Button></div>
+        </div>
+
+
+        @if (showTradeDetailsPane[(int)TradeDetailsPane.ITEM_ENTRY]) 
         {
             <ItemDetailsWindow tradeClient="@tradeClient"></ItemDetailsWindow>
-            <Button @onclick="() => showItemDetails = false">Hide item details</Button>
         }
 
-
-        @if (showAvailableItems == false)
-        {
-            <Button @onclick="async () => await tradeClient.GetAvailableItems()">Add Item To Trade</Button>
-        }
-        else
+        @if (showTradeDetailsPane[(int)TradeDetailsPane.AVAILABLE_ITEMS])
         {
             @foreach (var i in availableItems)
             {
                 <div class="grid-container">
-                    <div class="tradeItemDescription grid-column" @onclick="() => showItemOptions[i] = !showItemOptions[i]">@i.description</div>
-                    @if(showItemOptions[i])
-                    {
-                        <div class="tradeItemOption grid-column" @onclick="() => { ChangeUserItemMap(currentUser, i, UserItemMapChange.ADD); showItemOptions[i] = false; } "> Add to Trade </div>
-                        <div class="tradeItemOption grid-column" @onclick="() => { ChangeUserItemMap(currentUser, i, UserItemMapChange.DELETE); showItemOptions[i] = false; } "> Remove from Trade</div>
-                        <div class="tradeItemOption grid-column" > option 3 </div>
-                    }
+                    <div class="tradeItemDescription grid-column">@i.description</div>
+                    <div class="tradeItemOption grid-column" @onclick="() => { ChangeUserItemMap(currentUser, i, UserItemMapChange.ADD);  } "> Add to Trade </div>
+                    <div class="tradeItemOption grid-column" @onclick="() => { ChangeUserItemMap(currentUser, i, UserItemMapChange.DELETE); } "> Remove from Trade</div>
                 </div>
             }
-            <Button @onclick="() => showAvailableItems = false">Hide items</Button>
         }
 
+        @if(showTradeDetailsPane[(int)TradeDetailsPane.CURRENT_TRADE])
+        {
         @foreach (var a in tradeDetails.userItemMap)
         {
             @foreach (var i in a.Value)
@@ -62,10 +56,11 @@
                         { <span>Need @(-i.userItemOffset)</span>}
                     </div>
                     <div class="grid-column"> @(tradeItemTotals[i]) needed for trade </div>
-                    <div class="grid-column"> <button @onclick="@(() => i.userItemOffset += 1)">Increase</button> </div>
-                    <div class="grid-column"> <button @onclick="@(() => i.userItemOffset -= 1)">Decrease </button> </div>
+                    <div class="grid-column"> <button @onclick="@(() => i.userItemOffset += 1)">Supply +1</button> </div>
+                    <div class="grid-column"> <button @onclick="@(() => i.userItemOffset -= 1)">Need   +1 </button> </div>
                 </div>
             }
+        }
         }
     </div>
 </div>
@@ -73,6 +68,8 @@
 @code {
 
     enum UserItemMapChange {ADD, DELETE };
+    enum TradeDetailsPane {ITEM_ENTRY = 0, AVAILABLE_ITEMS, CURRENT_TRADE};
+    static bool[] showTradeDetailsPane = { false, false, false };
 
     [Parameter]
     public TradeClient tradeClient { get; set; }
@@ -83,8 +80,6 @@
 
     Dictionary<ItemDetails, bool> showItemOptions = new Dictionary<ItemDetails, bool>();
     List<ItemDetails> availableItems = new List<ItemDetails>();
-    bool showAvailableItems = false;
-    bool showItemDetails = false;
 
     static List<ItemDetails> tradeItemDetails = new List<ItemDetails> {
         new ItemDetails {ID = "1", description = "Apples"},
@@ -129,7 +124,6 @@
         {
             showItemOptions[i] = false;
         }
-        showAvailableItems = true;
         StateHasChanged();
     }
 
@@ -149,6 +143,13 @@
 
         StateHasChanged();
     }
+
+    void SwitchPane(TradeDetailsPane pane)
+    {
+        for(int p = 0; p < showTradeDetailsPane.Length; p++)
+        {
+            showTradeDetailsPane[(int)p] = (int)pane == p;
+        }
+    }
 }
 
-}
