@@ -1,4 +1,16 @@
-﻿<h3>TradeDetailsWindow</h3>
+﻿<style>
+
+    .tradeItemOption {
+        text-decoration: underline;
+        cursor: pointer;
+    }
+    .tradeItemDescription {
+        background-color:antiquewhite;
+        cursor: pointer;
+    }
+
+</style>
+<h3>TradeDetailsWindow</h3>
 
 <div>
     <p>Item List</p>
@@ -18,15 +30,21 @@
 
         @if (showAvailableItems == false)
         {
-            <Button @onclick="() => GetAvailableItems()">Add Item To Trade</Button>
+            <Button @onclick="async () => await tradeClient.GetAvailableItems()">Add Item To Trade</Button>
         }
         else
         {
             @foreach (var i in availableItems)
             {
-                <ul>
-                    <li>@(i.description)</li>
-                </ul>
+                <div class="grid-container">
+                    <div class="tradeItemDescription grid-column" @onclick="() => showItemOptions[i] = !showItemOptions[i]">@i.description</div>
+                    @if(showItemOptions[i])
+                    {
+                        <div class="tradeItemOption grid-column" @onclick="() => { ChangeUserItemMap(currentUser, i, UserItemMapChange.ADD); showItemOptions[i] = false; } "> Add to Trade </div>
+                        <div class="tradeItemOption grid-column" @onclick="() => { ChangeUserItemMap(currentUser, i, UserItemMapChange.DELETE); showItemOptions[i] = false; } "> Remove from Trade</div>
+                        <div class="tradeItemOption grid-column" > option 3 </div>
+                    }
+                </div>
             }
             <Button @onclick="() => showAvailableItems = false">Hide items</Button>
         }
@@ -44,8 +62,8 @@
                         { <span>Need @(-i.userItemOffset)</span>}
                     </div>
                     <div class="grid-column"> @(tradeItemTotals[i]) needed for trade </div>
-                    <div class="grid-column"> <button @onclick="@(e => UserChangedOffset(i, 1))">Increase</button> </div>
-                    <div class="grid-column"> <button @onclick="@(e => UserChangedOffset(i, -1))">Decrease </button> </div>
+                    <div class="grid-column"> <button @onclick="@(() => i.userItemOffset += 1)">Increase</button> </div>
+                    <div class="grid-column"> <button @onclick="@(() => i.userItemOffset -= 1)">Decrease </button> </div>
                 </div>
             }
         }
@@ -54,13 +72,16 @@
 
 @code {
 
+    enum UserItemMapChange {ADD, DELETE };
+
     [Parameter]
     public TradeClient tradeClient { get; set; }
     [Parameter]
     public int tradeId { get; set; }
 
+    static UserInfo currentUser = new UserInfo { Username = "Phil", ID = "1" };
 
-
+    Dictionary<ItemDetails, bool> showItemOptions = new Dictionary<ItemDetails, bool>();
     List<ItemDetails> availableItems = new List<ItemDetails>();
     bool showAvailableItems = false;
     bool showItemDetails = false;
@@ -84,9 +105,8 @@
 
     TradeDetails tradeDetails = new TradeDetails
     {
-        userItemMap = new Dictionary<UserInfo, List<ItemDetails>>() { { new UserInfo { Username = "Phil", ID = "1" }, tradeItemDetails } }
+        userItemMap = new Dictionary<UserInfo, List<ItemDetails>>() { { currentUser, tradeItemDetails } }
     };
-
 
     async Task UserChangedOffset(ItemDetails item, int val)
     {
@@ -105,13 +125,30 @@
     void PicklistReceived(object sender, ItemPicklistChangeReceivedEventArgs e)
     {
         availableItems = new List<ItemDetails>(e.itemEventArgs);
+        foreach(var i in availableItems)
+        {
+            showItemOptions[i] = false;
+        }
         showAvailableItems = true;
         StateHasChanged();
     }
 
-    public async Task GetAvailableItems()
+    void ChangeUserItemMap(UserInfo u, ItemDetails i, UserItemMapChange e)
     {
-        await tradeClient.GetAvailableItems();
+        if(e == UserItemMapChange.ADD && !tradeDetails.userItemMap[u].Contains(i))
+        {
+
+            tradeDetails.userItemMap[u].Add(i);
+            tradeItemTotals[i] = 0;
+
+        }
+        else if (e == UserItemMapChange.DELETE && tradeDetails.userItemMap[u].Contains(i))
+        {
+            tradeDetails.userItemMap[u].Remove(i);
+        }
+
+        StateHasChanged();
     }
+}
 
 }
