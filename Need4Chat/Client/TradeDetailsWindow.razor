@@ -130,16 +130,19 @@
 
     void ChangeUserItemMap(UserInfo u, ItemDetails i, UserItemMapChange e)
     {
-        if(e == UserItemMapChange.ADD && !tradeDetails.userItemMap[u].Contains(i))
+        List<ItemDetails> tradeItems = tradeDetails.userItemMap[u];
+        var foundItem = tradeItems.Find(x => x.description == i.description);
+
+        if (e == UserItemMapChange.ADD && foundItem == null)
         {
 
-            tradeDetails.userItemMap[u].Add(i);
+            tradeItems.Add(i);
             tradeItemTotals[i] = 0;
 
         }
-        else if (e == UserItemMapChange.DELETE && tradeDetails.userItemMap[u].Contains(i))
+        else if (e == UserItemMapChange.DELETE && foundItem != null)
         {
-            tradeDetails.userItemMap[u].Remove(i);
+            tradeItems.Remove(foundItem);
         }
 
         StateHasChanged();

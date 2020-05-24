@@ -134,9 +134,9 @@ namespace Need4Chat.Shared
                 else
                     await _hubConnection.SendAsync(method);
             }
-            catch
+            catch(Exception e)
             {
-                throw new Exception("Send to hub failed");
+                throw new Exception(String.Format("Send to hub failed {0}", e.Message));
             }
         }
 
