@@ -2,12 +2,18 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Need4Chat.Shared
+namespace Need4Chat.Shared.Interfaces
 {
+
+    public interface IQueryData
+    {
+        public List<ItemDetails> GetAvailableItems();
+    }
+
 
     public interface IChatClient
     {
-        Task LogMessageToUser(String username, string message);
+        Task LogMessageToUser(string username, string message);
         Task BroadcastBulk(IEnumerable<ChatMessage> messages);
         Task BroadcastMessage(ChatMessage message);
         Task SendAsync(ChatMessage message);

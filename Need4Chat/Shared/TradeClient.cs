@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
+using Need4Chat.Shared.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -129,14 +130,18 @@ namespace Need4Chat.Shared
 
                 //await _hubConnection.SendAsync("SendTradeMessage", jsonString);
 
-                if(message != null)
+                if (message != null)
+                {
                     await _hubConnection.SendAsync(method, message);
+                }
                 else
+                {
                     await _hubConnection.SendAsync(method);
+                }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                throw new Exception(String.Format("Send to hub failed {0}", e.Message));
+                throw new Exception(string.Format("Send to hub failed {0}", e.Message));
             }
         }
 
@@ -198,7 +203,7 @@ namespace Need4Chat.Shared
 
         public Task UpdateItemOffsetForUser(ItemDetails item, UserInfo user)
         {
-            
+
             //ItemOffsetChangeReceived?.Invoke(this, new ItemOffsetChangeReceivedEventArgs(tradeMessages));
             throw new NotImplementedException();
         }
@@ -229,7 +234,7 @@ namespace Need4Chat.Shared
         {
             //messageEventArgs = new List<MessageReceivedEventArgs>();
 
-            foreach (var c in tradeMessages)
+            foreach (TradeMessage c in tradeMessages)
             {
                 //messageEventArgs.Add(new MessageReceivedEventArgs(c));
             }

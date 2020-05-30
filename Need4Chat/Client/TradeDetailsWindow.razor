@@ -1,4 +1,5 @@
-﻿@using Need4Chat.Client;
+﻿@inject IQueryData dq
+
 <style>
 
     .tradeItemOption {
@@ -20,7 +21,8 @@
 
         <div class="grid-container">
             <div class="grid-column"><Button @onclick="() => SwitchPane(TradeDetailsPane.ITEM_ENTRY)">Show item entry form</Button></div>
-            <div class="grid-column"><Button @onclick="async () => { await tradeClient.GetAvailableItems();  SwitchPane(TradeDetailsPane.AVAILABLE_ITEMS); }">Select Items to Trade</Button></div>
+            <div class="grid-column"><Button @onclick="async () => { availableItems = dq.GetAvailableItems();  SwitchPane(TradeDetailsPane.AVAILABLE_ITEMS); }">Select Items to Trade</Button></div>
+            @*<div class="grid-column"><Button @onclick="async () => { await tradeClient.GetAvailableItems();  SwitchPane(TradeDetailsPane.AVAILABLE_ITEMS); }">Select Items to Trade</Button></div>*@
             <div class="grid-column"><Button @onclick="() => SwitchPane(TradeDetailsPane.CURRENT_TRADE)">Show current trade</Button></div>
         </div>
 

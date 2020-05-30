@@ -3,6 +3,8 @@ using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Need4Chat.Shared.DataLookups;
+using Need4Chat.Shared.Interfaces;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -14,6 +16,7 @@ namespace Need4Chat.Client
         public static async Task Main(string[] args)
         {
             WebAssemblyHostBuilder builder = WebAssemblyHostBuilder.CreateDefault(args);
+            builder.Services.AddSingleton<IQueryData, TradeDataLookup>();
             builder.Services
               .AddBlazorise(options =>
               {
@@ -22,15 +25,15 @@ namespace Need4Chat.Client
               .AddBootstrapProviders()
               .AddFontAwesomeIcons();
 
+
             builder.Services.AddSingleton(new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
             builder.RootComponents.Add<App>("app");
 
             WebAssemblyHost host = builder.Build();
 
-            host.Services
-              .UseBootstrapProviders()
-              .UseFontAwesomeIcons();
+            host.Services.UseBootstrapProviders().UseFontAwesomeIcons();
+            IQueryData dataQueryService = host.Services.GetRequiredService<IQueryData>();
 
             await host.RunAsync();
         }

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Internal;
 using Need4Chat.Server.Models;
-using Need4Chat.Shared;
+using Need4Chat.Shared.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -75,7 +75,9 @@ namespace Need4Chat.Server
             IQueryable<int> q = from r in db.Item where r.Name == item.description select r.Id;
 
             if (q.Count() > 0)
+            {
                 return false;
+            }
 
             Item i = new Item() { Name = item.description };
             db.Item.Add(i);
@@ -90,11 +92,12 @@ namespace Need4Chat.Server
             IQueryable<string> q = from r in db.Item select r.Name;
 
             if (q.Count() == 0)
+            {
                 return false;
-
+            }
 
             items.Clear();
-            foreach(var i in q)
+            foreach (string i in q)
             {
                 items.Add(new ItemDetails { description = i });
             }

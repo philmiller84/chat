@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using Need4Chat.Shared;
+using Need4Chat.Shared.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -35,9 +35,13 @@ namespace Need4Chat.Server.Hubs
                 bool messageAdded = false;
                 await Task.Run(() => messageAdded = dbMiddleware.AddMessage(message));
                 if (messageAdded)
+                {
                     await Clients.All.BroadcastMessage(message);
+                }
                 else
+                {
                     await Clients.Caller.LogMessageToUser(message.Username, "Failed to send message");
+                }
             }
             catch (Exception e)
             {

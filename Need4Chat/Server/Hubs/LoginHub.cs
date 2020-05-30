@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Need4Chat.Server.Models;
-using Need4Chat.Shared;
+using Need4Chat.Shared.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -62,7 +62,7 @@ namespace Need4Chat.Server.Hubs
                 //	"ReceiveMessage",
                 //	username, $"{username} joined the chat");
             }
-            await Clients.AllExcept(currentId).ReceiveMessage( username, $"{username} registered"); 
+            await Clients.AllExcept(currentId).ReceiveMessage(username, $"{username} registered");
         }
 
         /// <summary>

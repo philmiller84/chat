@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
+using Need4Chat.Shared.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Need4Chat.Shared
@@ -83,7 +83,7 @@ namespace Need4Chat.Shared
             }
         }
 
-        public Task LogMessageToUser(String username, string message)
+        public Task LogMessageToUser(string username, string message)
         {
             HandleReceiveMessage(new ChatMessage() { Username = username, Body = message });
             return Task.CompletedTask;

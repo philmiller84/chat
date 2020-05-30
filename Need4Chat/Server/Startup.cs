@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Need4Chat.Shared.DataLookups;
+using Need4Chat.Shared.Interfaces;
 using System.IO;
 using System.Linq;
 
@@ -24,6 +26,7 @@ namespace Need4Chat.Server
 
             //string dbConn = Configuration.GetSection("ConnectionString").GetSection("Burbank").Value;
             //services.AddDbContext<database1Context>(opt => opt.UseSqlServer(dbConn), ServiceLifetime.Transient);
+            services.AddSingleton<IQueryData, TradeDataLookup>();
 
             services.AddBlazorise(options => { options.ChangeTextOnKeyPress = true; })
                 .AddBootstrapProviders()
