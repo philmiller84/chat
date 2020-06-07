@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
-using Need4Chat.Shared.Interfaces;
+using Need4Chat.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Need4Chat.Shared
+namespace Need4Chat.Interfaces
 {
 
     /// <summary>
@@ -116,6 +116,19 @@ namespace Need4Chat.Shared
         /// Send a message to the hub
         /// </summary>
         /// <param name="message">message to send</param>
+        public async Task<List<ItemDetails>> GetAsyncObject(string method, object message)
+        {
+            try
+            {
+                await _hubConnection.InvokeAsync<List<ItemDetails>>(method, message);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(string.Format("Send to hub failed {0}", e.Message));
+            }
+            return null;
+        }
+
         public async Task SendAsyncObject(string method, object message)
         {
             // check we are connected
@@ -158,6 +171,21 @@ namespace Need4Chat.Shared
         public async Task GetAvailableItems()
         {
             await SendAsyncObject("GetAvailableItems", null);
+        }
+        
+        public List<ItemDetails> GetAvailableItems2()
+        {
+            List<ItemDetails> newList = null;
+            try
+            {
+                newList = GetAsyncObject("GetAvailableItems", null).Result;
+            }
+            catch(Exception e)
+            {
+                Console.Write("GetAvailableItems2 Exception:{0}", e.Message);
+            }
+
+            return newList;
         }
 
         public async Task SendAvailableItemsToUser(IEnumerable<ItemDetails> items)

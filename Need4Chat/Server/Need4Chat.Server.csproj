@@ -17,6 +17,7 @@
   </ItemGroup>
   <ItemGroup>
     <!--<PackageReference Include="Microsoft.AspNetCore.Blazor.Server" Version="3.2.0-preview1.20073.1" />-->
+    <PackageReference Include="Blazorise" Version="0.9.0.3" />
     <PackageReference Include="Blazorise.Bootstrap" Version="0.9.0.3" />
     <PackageReference Include="Blazorise.Icons.FontAwesome" Version="0.9.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="3.2.0-rc1.20223.4" />
@@ -33,7 +34,6 @@
     <PackageReference Include="System.Runtime.Extensions" Version="4.3.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Client\Need4Chat.Client.csproj" />
-    <ProjectReference Include="..\Shared\Need4Chat.Shared.csproj" />
+    <ProjectReference Include="..\Shared\Need4Chat.Interfaces.csproj" />
   </ItemGroup>
 </Project>

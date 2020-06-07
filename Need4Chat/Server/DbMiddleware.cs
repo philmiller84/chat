@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Internal;
 using Need4Chat.Server.Models;
-using Need4Chat.Shared.Interfaces;
+using Need4Chat.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -86,14 +86,15 @@ namespace Need4Chat.Server
             return true;
         }
 
-        public bool GetAvailableItems(List<ItemDetails> items)
+        public List<ItemDetails> GetAvailableItems(List<ItemDetails> items)
         {
+            try{
             database1Context db = new database1Context();
             IQueryable<string> q = from r in db.Item select r.Name;
 
             if (q.Count() == 0)
             {
-                return false;
+                return null;
             }
 
             items.Clear();
@@ -101,11 +102,16 @@ namespace Need4Chat.Server
             {
                 items.Add(new ItemDetails { description = i });
             }
-            //Item i = new Item() { Name = item.description };
-            //db.Item.Add(i);
-            //db.SaveChanges();
+                //Item i = new Item() { Name = item.description };
+                //db.Item.Add(i);
+                //db.SaveChanges();
 
-            return true;
+            }
+            catch(Exception e)
+            {
+                Console.Write("DB Exception: {0}", e.Message);
+            }
+            return items;
         }
 
         public bool AddMessage(ChatMessage msg)

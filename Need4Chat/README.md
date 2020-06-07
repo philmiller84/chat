@@ -29,7 +29,7 @@ code to handle the interface to SignalR.
 ### Other Changes
 
 As well as removing JavaScript, I've refactored the client and hub code, moving both of 
-these to a `Need4Chat.Shared` project.
+these to a `Need4Chat.Interfaces` project.
 
 ## Demo
 

@@ -7,8 +7,9 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Need4Chat.Shared.DataLookups;
-using Need4Chat.Shared.Interfaces;
+using Need4Chat.Interfaces.DataLookups;
+using Need4Chat.Interfaces;
+using Need4Chat.Interfaces;
 using System.IO;
 using System.Linq;
 
@@ -26,7 +27,10 @@ namespace Need4Chat.Server
 
             //string dbConn = Configuration.GetSection("ConnectionString").GetSection("Burbank").Value;
             //services.AddDbContext<database1Context>(opt => opt.UseSqlServer(dbConn), ServiceLifetime.Transient);
+            services.AddRazorPages();
+            services.AddServerSideBlazor();
             services.AddSingleton<IQueryData, TradeDataLookup>();
+            services.AddSingleton<DbMiddleware>();
 
             services.AddBlazorise(options => { options.ChangeTextOnKeyPress = true; })
                 .AddBootstrapProviders()
@@ -52,6 +56,7 @@ namespace Need4Chat.Server
                 app.UseWebAssemblyDebugging();
             }
 
+            
             app.UseStaticFiles();
             app.UseBlazorFrameworkFiles();  // preview2 change
 
@@ -66,13 +71,14 @@ namespace Need4Chat.Server
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();
+                endpoints.MapBlazorHub();
 
                 // SignalR endpoint routing setup
-                endpoints.MapHub<Hubs.TradeHub>(Shared.TradeClient.HUBURL);
-                endpoints.MapHub<Hubs.ChatHub>(Shared.ChatClient.HUBURL);
-                endpoints.MapHub<Hubs.LoginHub>(Shared.LoginClient.HUBURL);
+                endpoints.MapHub<Hubs.TradeHub>(TradeClient.HUBURL);
+                endpoints.MapHub<Hubs.ChatHub>(ChatClient.HUBURL);
+                endpoints.MapHub<Hubs.LoginHub>(LoginClient.HUBURL);
 
-                endpoints.MapFallbackToFile("index.html");  // preview2 change
+                endpoints.MapFallbackToPage("/_Host");  // preview2 change
             });
         }
 

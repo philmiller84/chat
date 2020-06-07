@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using Need4Chat.Shared.Interfaces;
+using Need4Chat.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -41,14 +41,14 @@ namespace Need4Chat.Server.Hubs
             }
         }
 
-
-        public async Task GetAvailableItems()
+        public  List<ItemDetails> GetAvailableItems(string message)
         {
             try
             {
                 List<ItemDetails> availableItems = new List<ItemDetails>();
-                await Task.Run(() => dbMiddleware.GetAvailableItems(availableItems));
-                await Clients.Caller.SendAvailableItemsToUser(availableItems);
+                dbMiddleware.GetAvailableItems(availableItems);
+                //await Clients.Caller.SendAvailableItemsToUser(availableItems);
+                return availableItems;
             }
             catch (Exception e)
             {

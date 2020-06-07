@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Need4Chat.Shared.Interfaces
+namespace Need4Chat.Interfaces
 {
 
     public interface IQueryData
@@ -62,6 +62,7 @@ namespace Need4Chat.Shared.Interfaces
         Task BroadcastChanges(IEnumerable<ItemDetails> itemChanges);
 
         Task SendAvailableItemsToUser(IEnumerable<ItemDetails> availableItems);
+        //Task<List<ItemDetails>> GetAvailableItems();
     }
 
     public class TradeDetails

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace Need4Chat.Shared
+namespace Need4Chat.Interfaces
 {
     public class Formats
     {

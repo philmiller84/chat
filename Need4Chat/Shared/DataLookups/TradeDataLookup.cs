@@ -1,7 +1,7 @@
-﻿using Need4Chat.Shared.Interfaces;
+﻿using Need4Chat.Interfaces;
 using System.Collections.Generic;
 
-namespace Need4Chat.Shared.DataLookups
+namespace Need4Chat.Interfaces.DataLookups
 {
     public class TradeDataLookup : IQueryData
     {

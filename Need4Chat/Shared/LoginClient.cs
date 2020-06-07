@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
-using Need4Chat.Shared.Interfaces;
+using Need4Chat.Interfaces;
 using System;
 using System.Threading.Tasks;
 
-namespace Need4Chat.Shared
+namespace Need4Chat.Interfaces
 {
 
     /// <summary>
